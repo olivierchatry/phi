@@ -1,0 +1,23 @@
+#version 140
+
+uniform mat4 uni_ProjectionMatrix;
+uniform mat4 uni_ModelViewMatrix;
+uniform mat3 uni_NormalMatrix;
+
+in vec3 in_Position;
+in vec3 in_Normal;
+in vec2 in_UV;
+
+out vec3 vertexShader_Normal;
+out vec3 vertexShader_EyeNormal;
+out vec4 vertexShader_Eye;
+out vec2 vertexShader_UV;
+
+void main(void) {
+    vec4 position = vec4(in_Position, 1);
+    vertexShader_Normal = normalize(uni_NormalMatrix * in_Normal);
+    vertexShader_EyeNormal = normalize(uni_ModelViewMatrix * vec4(in_Normal, 0.0)).xyz;
+    vertexShader_Eye = -(uni_ModelViewMatrix * position);
+	vertexShader_UV = in_UV;
+    gl_Position = uni_ProjectionMatrix * uni_ModelViewMatrix * position;
+}
