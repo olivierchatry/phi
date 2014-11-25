@@ -60,9 +60,15 @@ int main(int argc, char* argv[])
     level.generate(shaderDirectional);
     
     Camera camera;
-    float angle = 0;
-    float delta = 0;
-	while (!glfwWindowShouldClose(window))
+
+    float playerDelta = 0;
+    
+    
+    float playerVelocity = 0;
+    float playerAcceleration = 0;
+    double time = glfwGetTime();
+    
+    while (!glfwWindowShouldClose(window))
 	{
 		float ratio;
 		int width, height;
@@ -74,12 +80,31 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		/*glClearColor(1, 0, 1, 0);*/
 		glEnable(GL_DEPTH_TEST);
-		
-        camera.mProjection = glm::perspective(glm::half_pi<float>(), ratio, 0.1f, 10000.0f);
-		glm::vec3 from = level.getPosition(delta) + level.getNormal(delta) * (level.getRadius(delta) * 1.2f);
-		glm::vec3 to = level.getPosition(delta + level.mSmallestDelta) + level.getNormal(delta) * (level.getRadius(delta + level.mSmallestDelta) * 1.2f);
+        double currentTime = glfwGetTime();
+        float delta = (float) (currentTime - time);
+        time = currentTime;
+        
+        {
+            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+                playerAcceleration += 10.0f;
+            else
+                playerAcceleration = 0;
+            playerAcceleration = glm::clamp(playerAcceleration, 0.0f, 1000.0f);
+            
+            playerVelocity  += playerAcceleration * delta;
+            playerDelta += (playerVelocity * delta) / level.mTotalLength;
+            playerVelocity *= 0.97f;
+        }
 
-		camera.mView = glm::lookAt(from, to, glm::vec3(0, 0, 1));
+        camera.mProjection = glm::perspective(glm::quarter_pi<float>(), ratio, 0.1f, 10000.0f);
+		glm::vec3 from = level.getPosition(playerDelta)
+                    + level.getNormal(playerDelta) * (level.getRadius(playerDelta) * 1.1f);
+
+        glm::vec3 to = level.getPosition(playerDelta + level.mSmallestDelta)
+                    + level.getNormal(playerDelta + level.mSmallestDelta) * (level.getRadius(playerDelta + level.mSmallestDelta) * 1.1f);
+
+
+		camera.mView = glm::lookAt(from, to, level.getNormal(playerDelta));
 		//camera.mView = glm::lookAt(glm::vec3(0, 0, 200),
 		//	level.get(angle + 0.0001), glm::vec3(0, 1, 0));
 
@@ -88,14 +113,15 @@ int main(int argc, char* argv[])
 		material.MaterialDiffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		material.MaterialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
         material.MaterialShininess = 64.f;
-		{
+		
+        {
 			shaderDirectional.bind();
             glm::vec3 lightDirection(glm::normalize(glm::vec3(0,0,1)));
             shaderDirectional.setLightDirection(lightDirection);
 			shaderDirectional.setMaterial(material);
 			shaderDirectional.setCamera(camera);
 			
-			level.computeChunkDistanceToCamera(camera, glm::normalize(to - from));
+			level.computeChunkDistanceToCamera(from, glm::normalize(to - from));
 			std::sort(level.mTrackChunks.begin(), level.mTrackChunks.end(), Game::Level::sortByDistance);
 					
 			// shaderDirectional.mShader.setUniform(shaderDirectional.getVsUV(), 0);
@@ -129,15 +155,8 @@ int main(int argc, char* argv[])
 				glCullFace(GL_BACK);
 				glDrawElements(GL_TRIANGLES, chunk->count, GL_UNSIGNED_SHORT, 0);				
 			}
-
-
-
 		}
         
-        // angle += 0.01f;
-        delta += 0.001f;
-        if (delta > 1)
-            delta = delta - 1;
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

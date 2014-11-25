@@ -16,7 +16,7 @@ namespace Game {
 		void destroy();
 	
 	public:
-		void computeChunkDistanceToCamera(Camera& camera, const glm::vec3& direction);
+		void computeChunkDistanceToCamera(const glm::vec3& position, const glm::vec3& direction);
 
 	public:
 		glm::vec3 getPosition(float delta)
@@ -100,6 +100,7 @@ namespace Game {
 		Track								mTrack;
 		Engine::Texture						mTexture;
 		float								mSmallestDelta;
+        float                               mTotalLength;
 	
 	public:
 		static bool sortByDistance(TrackChunkRenderable* a, TrackChunkRenderable* b)

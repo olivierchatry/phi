@@ -53,7 +53,7 @@ namespace Game {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// compute len;
-		float len = 0;
+		mTotalLength = 0;
 		for (size_t i = 0; i < mTrack.points.size(); ++i)
 		{
 			size_t j = i + 1;
@@ -63,12 +63,12 @@ namespace Game {
 			glm::vec3& v1 = mTrack.points[i];
 			glm::vec3& v2 = mTrack.points[j];
 			glm::vec3 v = v2 - v1;
-			len += glm::length(v);
+			mTotalLength += glm::length(v);
 		}
 		std::vector<glm::vec3>	splines;
 		std::vector<float>		radius;
 		// we subdivide every meter.
-		mSmallestDelta = 2.f / len;
+		mSmallestDelta = 2.f / mTotalLength;
 		float current = 0;
 
 		while (current < 1)
@@ -101,7 +101,6 @@ namespace Game {
 		size_t					currentPointInSpline = 0;
 
 		mTrackChunks.reserve((splines.size() * 2) / trackChunkSize + 1);
-		size_t					currentChunk = 0;
 
 		while (currentPointInSpline < splines.size())
 		{
@@ -215,15 +214,13 @@ namespace Game {
 
 		}
 	}
-	void Level::computeChunkDistanceToCamera(Camera& camera, const glm::vec3& direction)
+	void Level::computeChunkDistanceToCamera(const glm::vec3& position, const glm::vec3& direction)
 	{
-		glm::vec3 pos = Utils::ExtractCameraPos(camera.mView);
-
 		for (auto chunk : mTrackChunks)
 		{
-			glm::vec3 nearestPoint = chunk->aabb.nearestPoint(pos);
-			chunk->distance = chunk->aabb.distanceFrom(pos);
-			if (glm::dot(glm::normalize(nearestPoint - pos), direction) < 0)
+			glm::vec3 nearestPoint = chunk->aabb.nearestPoint(position);
+			chunk->distance = chunk->aabb.distanceFrom(position);
+			if (glm::dot(glm::normalize(nearestPoint - position), direction) < 0)
 				chunk->distance = -chunk->distance;
 		}
 
