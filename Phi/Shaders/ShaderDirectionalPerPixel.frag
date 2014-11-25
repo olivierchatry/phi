@@ -22,7 +22,7 @@ float computeFresnelFactor(float cosAngle, float fresValue)
 
 void main(void)
 {
-    vec4 texColour = texture2D(uni_Texture, vertexShader_UV);
+    vec4 texColour = texture(uni_Texture, vertexShader_UV);
 
     // set the specular term to black
     vec4 spec = vec4(0.0);
