@@ -66,10 +66,38 @@ int main(int argc, char* argv[])
     float playerVelocity = 0;
     float playerAcceleration = 0;
 	
-	glm::vec3 playerPosition  = level.getPosition(playerDelta) + level.getNormal(playerDelta) * (level.getRadius(playerDelta) * 1.1f);
-	glm::vec3 playerDirection = (level.getPosition(playerDelta + level.mSmallestDelta) + level.getNormal(playerDelta + level.mSmallestDelta) * (level.getRadius(playerDelta + level.mSmallestDelta) * 1.1f)) - playerPosition;
-	glm::vec3 playerForce;
-    double time = glfwGetTime();
+	struct Player
+	{
+		glm::vec3 points[2];
+		glm::vec3 force[2];
+
+		glm::vec3 normal;
+
+		float	  acceleration;
+		float	  velocity;
+
+		glm::vec3 direction() {
+			return glm::normalize(points[1] - points[0]);
+		}
+		
+		glm::vec3& position() {
+			return points[0];
+		}
+	};
+
+	Player player;
+	
+	player.points[0] = level.getPosition(playerDelta) + level.getNormal(playerDelta) * (level.getRadius(playerDelta) * 1.1f);
+	player.points[1] = level.getPosition(playerDelta + level.mSmallestDelta) + level.getNormal(playerDelta + level.mSmallestDelta) * (level.getRadius(playerDelta + level.mSmallestDelta) * 1.1f);
+	
+	player.force[0] = glm::vec3(0);
+	player.force[1] = glm::vec3(0);
+	player.normal = glm::vec3(0, 0, 1);
+
+	player.velocity = 0.f;
+	player.acceleration = 0.f;
+
+	double time = glfwGetTime();
     
     while (!glfwWindowShouldClose(window))
 	{
@@ -83,21 +111,34 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		/*glClearColor(1, 0, 1, 0);*/
 		glEnable(GL_DEPTH_TEST);
-        double currentTime = glfwGetTime();
-		float delta = 0.01; (float)(currentTime - time);
-        time = currentTime;
         
-		glm::vec3 normal;
+		double currentTime = glfwGetTime();
+		float deltaTime = (float)(currentTime - time);
+		time = currentTime;
+
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+			player.acceleration = glm::clamp(player.acceleration + 10.f, 0.f, 1000.f);
+		else
+			player.acceleration = 0;	
+
+		player.velocity += player.acceleration * deltaTime;
+
+		for (int i = 0; i < 2; ++i)
+		{
+			glm::vec3 nextPosition = player.points[i] + (player.direction) * (player.velocity * deltaTime);
+			float deltaOnSpline;
+			level.findNearestDelta(nextPosition, deltaOnSpline, 3);
+			float radius = level.getRadius(deltaOnSpline);
+
+		}
+
+		/*
+
+
         {
-            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-                playerAcceleration += 10.0f;
-            else
-                playerAcceleration = 0;
+		            
             
-			playerAcceleration = glm::clamp(playerAcceleration, 0.0f, 1000.0f);            
-            playerVelocity  += playerAcceleration * delta;            
-			
-			glm::vec3 nextPlayerPosition = playerPosition + (playerDirection) * (playerVelocity * delta);
+
 			
 			float deltaOnSpline;
 			level.findNearestDelta(nextPlayerPosition, deltaOnSpline, 3);
@@ -111,15 +152,11 @@ int main(int argc, char* argv[])
 			
 			float distance = glm::distance(nextPlayerPosition, collisionPoint);
 			glm::vec3 gravity(0);
-			if (distance > std::numeric_limits<float>::epsilon())
-				gravity = glm::normalize(collisionPoint - nextPlayerPosition);
-			
-			
-			printf("delta = %f, radius = %f, distance %f, point = %f %f %f collision = %f %f %f\n", deltaOnSpline, radius, distance, pointOnSpline.x, pointOnSpline.y, pointOnSpline.z, collisionPoint.x, collisionPoint.y, collisionPoint.z);
 
+			if (distance > std::numeric_limits<float>::epsilon())
+				gravity = glm::normalize(collisionPoint - nextPlayerPosition);								
 			
-			
-			nextPlayerPosition += gravity * distance;
+			nextPlayerPosition += gravity * distance * delta;
 			glm::vec3 playerDirection = (level.getPosition(deltaOnSpline + level.mSmallestDelta) + level.getNormal(deltaOnSpline + level.mSmallestDelta) * (level.getRadius(deltaOnSpline + level.mSmallestDelta) * 1.1f)) - playerPosition;
 
 			distance = glm::distance(nextPlayerPosition, playerPosition);
@@ -128,13 +165,14 @@ int main(int argc, char* argv[])
             playerVelocity *= 0.97f;
 			normal = vecToPoint;
         }
+*/
 
         camera.mProjection = glm::perspective(glm::quarter_pi<float>(), ratio, 0.1f, 10000.0f);
-		glm::vec3 from	= playerPosition;
-		glm::vec3 to	= playerPosition + playerDirection;
+		glm::vec3 from	= player.position();		
+		glm::vec3 to = player.position() + player.direction();
 
 
-		camera.mView = glm::lookAt(from, to, normal);
+		camera.mView = glm::lookAt(from, to, player.normal);
 		//camera.mView = glm::lookAt(glm::vec3(0, 0, 200),
 		//	level.get(angle + 0.0001), glm::vec3(0, 1, 0));
 
