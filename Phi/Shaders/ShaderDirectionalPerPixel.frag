@@ -31,7 +31,8 @@ void main(void)
     // normalize both input vectors
     vec3 n = normalize(vertexShader_Normal);
     vec3 e = normalize(vec3(vertexShader_Eye));
-    
+    if(dot(vertexShader_EyeNormal, e) < 0)
+		n = -n;
     float intensity = max(dot(n,uni_LightDirection), 0.0);
     
     // if the vertex is lit compute the specular color
