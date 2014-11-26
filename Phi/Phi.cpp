@@ -128,19 +128,22 @@ int main(int argc, char* argv[])
 
 		bool stopForce = true;
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			player.force[1] = glm::clamp(player.force[1] + 1.f, 0.f, 10.f), stopForce = false;
+			player.force[1] = glm::clamp(player.force[1] - 0.5f, -5.f, 5.f), stopForce = false;
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-			player.force[1] = glm::clamp(player.force[1] - 1.f, 0.f, 10.f), stopForce = false;
+			player.force[1] = glm::clamp(player.force[1] + 0.5f, -5.f, 5.f), stopForce = false;
 		if (stopForce)
 			player.force[1] = 0;
 			
 		
-		player.velocity += player.acceleration * deltaTime;
+		player.velocity += player.acceleration * deltaTime;		
 		player.velocity *= 0.97f;
 
 		for (int i = 0; i < 2; ++i)
 		{
-			glm::vec3 nextPosition = player.points[i] + (player.direction()) * (player.velocity * deltaTime);
+			player.velocityTurn[i] += player.force[i] * deltaTime;
+			player.velocityTurn[i] *= 0.97f;
+			glm::vec3 nextPosition = player.points[i] + (player.direction()) * (player.velocity * deltaTime) + player.right * player.velocityTurn[i] * deltaTime;
+
 			float deltaOnSpline;
 			level.findNearestDelta(nextPosition, deltaOnSpline, 3);
 			
@@ -193,9 +196,10 @@ int main(int argc, char* argv[])
 */
 
         camera.mProjection = glm::perspective(glm::quarter_pi<float>(), ratio, 0.1f, 10000.0f);
-		glm::vec3 from	= player.position();		
+		player.points[1] = player.points[0] + player.direction();
+		glm::vec3 from	= player.position();				
 		glm::vec3 to = player.position() + player.direction();
-
+		
 
 		camera.mView = glm::lookAt(from, to, player.normal);
 		//camera.mView = glm::lookAt(glm::vec3(0, 0, 200),
