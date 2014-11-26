@@ -19,26 +19,34 @@ namespace Render {
         {
             switch (i)
             {
-                case 0:
-                    return min;
-                case 1:
-                    return glm::vec3(max.x, min.y, min.z);
-                case 2:
-                    return glm::vec3(max.x, max.y, min.z);
-                case 3:
-                    return glm::vec3(min.x, max.y, min.z);
                 case 4:
-                    return glm::vec3(min.x, min.y, max.z);
+                    return min;
                 case 5:
-                    return glm::vec3(max.x, min.y, max.z);
+                    return glm::vec3(max.x, min.y, min.z);
                 case 6:
-                    return max;
+                    return glm::vec3(max.x, max.y, min.z);
                 case 7:
+                    return glm::vec3(min.x, max.y, min.z);
+                case 0:
+                    return glm::vec3(min.x, min.y, max.z);
+                case 1:
+                    return glm::vec3(max.x, min.y, max.z);
+                case 2:
+                    return max;
+                case 3:
                     return glm::vec3(min.x, max.y, max.z);
                 default:
                     return glm::vec3(0);
             }
         }
+		void expand(glm::vec3 times)
+		{
+			glm::vec3 cent = center();
+			glm::vec3 dir = max - cent;
+
+			max = max + dir * times;
+			min = min - dir * times;
+		}
 
         void add(const AABB& aabb)
         {

@@ -5,23 +5,11 @@
 
 namespace Game
 {
-    static void generateCube(Render::AABB& aabb, std::vector<float>& v, std::vector<GLushort>& in)
+    static void generateCube(Render::AABB& aabb, std::vector<float>& v)
     {
         
         GLushort current = (GLushort) v.size() / 6;
         
-        for (int i = 0; i < 8; ++i)
-        {
-            glm::vec3 corner = aabb.corner(i);
-            
-            v.push_back(corner.x);
-            v.push_back(corner.y);
-            v.push_back(corner.z);
-            
-            v.push_back(0.f);
-            v.push_back(0.f);
-            v.push_back(0.f);
-        }
         GLushort cube_elements[] = {
             // front
             0, 1, 2,
@@ -43,20 +31,28 @@ namespace Game
             6, 2, 1,
         };
         
-        for (int i = 0; i < 36; ++i)
-            in.push_back(current + cube_elements[i]);
+		for (int i = 0; i < 36; ++i)
+		{
+			glm::vec3 corner = aabb.corner(cube_elements[i]);
+
+			v.push_back(corner.x);
+			v.push_back(corner.y);
+			v.push_back(corner.z);
+
+			v.push_back(0.f);
+			v.push_back(0.f);
+			v.push_back(0.f);
+		}
     }
     
-    void Terrain::addChunk(Render::AABB& aabb, std::vector<float>& vs, std::vector<GLushort>& indices)
+    void Terrain::addChunk(Render::AABB& aabb, std::vector<float>& vs)
     {
         TerrainRenderable* chunk = new TerrainRenderable();
-        Utils::GenerateNormals(&indices[0], &vs[0], 6, indices.size(), 0, 3, false);
+        Utils::GenerateNormals(&vs[0], 6, vs.size() / 18, 0, 3);
         
         chunk->aabb = aabb;
-        chunk->count = (int)indices.size();
+        chunk->count = (int)vs.size();
         
-        chunk->indexBuffer.create(GL_STATIC_DRAW, indices.size() * sizeof(unsigned short));
-        chunk->indexBuffer.update(&indices[0], 0, indices.size() * sizeof(unsigned short));
         chunk->vertexBuffer.create(GL_STATIC_DRAW, vs.size() * sizeof(float));
         chunk->vertexBuffer.update(&vs[0], 0, vs.size() * sizeof(float));
         chunk->vertexArray.create();
@@ -92,11 +88,9 @@ namespace Game
     
     void Terrain::generate(Render::AABB& aabb, GenerateArgument& argument)
     {
-        float meterPerVertex = 1.f / argument.vertexPerMeter;
-        glm::vec3 delta = aabb.size() / meterPerVertex;
+		glm::vec3 delta = aabb.size() / argument.subDivision;
         
         std::vector<float>      vs;
-        std::vector<GLushort>   indices;
         
         Render::AABB chunkAABB;
         chunkAABB.reset();
@@ -105,23 +99,22 @@ namespace Game
         {
             for (float x = aabb.min.x; x < aabb.max.x; x += delta.x)
             {
-                float z = glm::linearRand(0.f, 1000.f);
+                float z = glm::linearRand(0.f, 500.f);
                 Render::AABB current;
                 current.min = glm::vec3(x, y, 0);
                 current.max = glm::vec3(x + delta.x, y + delta.y, z);
-                generateCube(current, vs, indices);
+                generateCube(current, vs);
                 chunkAABB.add(aabb);
                 
                 if (vs.size() > 32000)
                 {
-                    addChunk(chunkAABB, vs, indices);
+                    addChunk(chunkAABB, vs);
                     chunkAABB.reset();
                     vs.clear();
-                    indices.clear();
                 }
             }
         }
-        if (!indices.empty())
-            addChunk(chunkAABB, vs, indices);
+        if (!vs.empty())
+            addChunk(chunkAABB, vs);
     }
 }

@@ -13,10 +13,10 @@ namespace Game
         {
             GenerateArgument()
             {
-                vertexPerMeter = 0.1;
+				subDivision = 100.f;
             }
             
-            float vertexPerMeter;
+            float subDivision;
         };
     public:
         void generate(Render::AABB& aabb, GenerateArgument& argument);
@@ -24,13 +24,12 @@ namespace Game
         void destroy();
         
     protected:
-        void addChunk(Render::AABB& aabb, std::vector<float>& vs, std::vector<GLushort>& indices);
+        void addChunk(Render::AABB& aabb, std::vector<float>& vs);
         
     public:
         struct TerrainRenderable
         {
             Engine::VertexBuffer				vertexBuffer;
-            Engine::IndexBuffer					indexBuffer;
             int									count;
             Engine::VertexArray					vertexArray;
             Render::AABB						aabb;

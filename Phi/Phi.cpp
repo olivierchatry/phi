@@ -69,7 +69,9 @@ int main(int argc, char* argv[])
     Game::Terrain terrain;
     {
         Game::Terrain::GenerateArgument arguments;
-        terrain.generate(level.mLevelAABB, arguments);
+		Render::AABB aabb = level.mLevelAABB;
+		aabb.expand(glm::vec3(4, 4, 0));
+        terrain.generate(aabb, arguments);
         terrain.setShader(&shaderDirectionalNoTex);
     }
     Camera camera;
@@ -187,23 +189,44 @@ int main(int argc, char* argv[])
         glm::vec3 normalCamera = glm::normalize(from - pointCamera);
         from += normalCamera;
         */
-        glm::vec3 to = player.position + player.direction * 2.f;
-        
-        
+        glm::vec3 to = player.position + player.direction * 2.f;  
         camera.mView = glm::lookAt(from, to, player.normal);
         //camera.mView = glm::lookAt(glm::vec3(0, 0, 200),
         //	level.get(angle + 0.0001), glm::vec3(0, 1, 0));
         
-        Render::Material material;
-        material.MaterialAmbient = glm::vec4(0.2f);
-        material.MaterialDiffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        material.MaterialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        material.MaterialShininess = 64.f;
         
         glm::vec3 lightDirection(glm::normalize(glm::vec3(0,0,1)));
 
+		{
+			Render::Material material;
+			material.MaterialAmbient = glm::vec4(0.2f);
+			material.MaterialDiffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			material.MaterialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			material.MaterialShininess = 64.f;
+
+			shaderDirectionalNoTex.setMaterial(material);
+			shaderDirectionalNoTex.setLightDirection(lightDirection);
+			shaderDirectionalNoTex.setCamera(camera);
+
+			for (auto chunk : terrain.mTerrainRenderables)
+			{
+				Engine::VertexArray::Binder  bind1(chunk->vertexArray);
+
+				glCullFace(GL_BACK);
+				glDrawArrays(GL_TRIANGLES, 0, chunk->count);
+			}
+
+
+		}
+
         {
-            shaderDirectional.bind();
+			Render::Material material;
+			material.MaterialAmbient = glm::vec4(0.2f);
+			material.MaterialDiffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			material.MaterialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			material.MaterialShininess = 64.f;
+			
+			shaderDirectional.bind();
             shaderDirectional.setLightDirection(lightDirection);
             shaderDirectional.setMaterial(material);
             shaderDirectional.setCamera(camera);
@@ -242,28 +265,6 @@ int main(int argc, char* argv[])
                 glCullFace(GL_BACK);
                 glDrawElements(GL_TRIANGLES, chunk->count, GL_UNSIGNED_SHORT, 0);				
             }
-        }
-        {
-            material.MaterialAmbient = glm::vec4(0.2f);
-            material.MaterialDiffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-            material.MaterialSpecular = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-            material.MaterialShininess = 64.f;
-            
-            shaderDirectionalNoTex.setMaterial(material);
-            shaderDirectionalNoTex.setLightDirection(lightDirection);
-            shaderDirectionalNoTex.setCamera(camera);
- 
-            for (auto chunk : terrain.mTerrainRenderables)
-            {
-                Engine::VertexArray::Binder  bind1(chunk->vertexArray);
-                Engine::IndexBuffer::Binder  bind3(chunk->indexBuffer);
-                
-                glEnable(GL_CULL_FACE);
-                glCullFace(GL_BACK);
-                glDrawElements(GL_TRIANGLES, chunk->count, GL_UNSIGNED_SHORT, 0);
-            }
-            
-            
         }
         
         glfwSwapBuffers(window);

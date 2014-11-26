@@ -6,13 +6,13 @@ namespace Game {
 
 	Level::Level()
 	{
-		mTrack.points.push_back(glm::vec3(-2000, -2000, 1000));
+		mTrack.points.push_back(glm::vec3(-2000, -2000, 2000));
 		mTrack.radius.push_back(100);
-		mTrack.points.push_back(glm::vec3(-2000, 2000, 500));
+		mTrack.points.push_back(glm::vec3(-2000, 2000, 800));
 		mTrack.radius.push_back(200);
-		mTrack.points.push_back(glm::vec3(2000, 2000, 0));
+		mTrack.points.push_back(glm::vec3(2000, 2000, 3000));
 		mTrack.radius.push_back(300);
-		mTrack.points.push_back(glm::vec3(2000, -2000, 500));
+		mTrack.points.push_back(glm::vec3(2000, -2000, 4000));
 		mTrack.radius.push_back(200);
 
 	}
