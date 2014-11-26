@@ -69,8 +69,9 @@ int main(int argc, char* argv[])
     Game::Terrain terrain;
     {
         Game::Terrain::GenerateArgument arguments;
+        arguments.subDivision = 20.f;
 		Render::AABB aabb = level.mLevelAABB;
-		aabb.expand(glm::vec3(4, 4, 0));
+		aabb.expand(glm::vec3(1, 1, 0));
         terrain.generate(aabb, arguments);
         terrain.setShader(&shaderDirectionalNoTex);
     }
@@ -107,7 +108,7 @@ int main(int argc, char* argv[])
     player.acceleration = 0.f;
     
     double time = glfwGetTime();
-    
+    float oldDelta = 0;
     while (!glfwWindowShouldClose(window))
     {
         float ratio;
@@ -132,19 +133,18 @@ int main(int argc, char* argv[])
         /*player.velocity += player.right * player.force * deltaTime;*/
         player.velocity *= 0.97f;
         
-        glm::vec3 previousPosition = player.position;
-        player.position = player.position + player.velocity * deltaTime;
         
-        float deltaOnSpline;
+        float deltaOnSpline = oldDelta;
         level.findNearestDelta(player.position, deltaOnSpline, 1);
-        
+        oldDelta = deltaOnSpline;
         glm::vec3	pointOnSpline = level.getPosition(deltaOnSpline);
+        
         player.direction = glm::normalize(player.direction + glm::normalize(level.getPosition(deltaOnSpline + level.mSmallestDelta) - pointOnSpline));
         
         float radius = level.getRadius(deltaOnSpline);
         
         glm::vec3 vecToPoint = glm::normalize(player.position - pointOnSpline);
-        glm::vec3 collisionPoint = vecToPoint * radius * 1.1f + pointOnSpline;
+        glm::vec3 collisionPoint = vecToPoint * radius * 1.2f + pointOnSpline;
         glm::vec3 hittingPoint = vecToPoint * radius + pointOnSpline;
         float distancePlayerToSpline = glm::distance(pointOnSpline, player.position);
         float distanceTrackToSpline = glm::distance(pointOnSpline, hittingPoint);
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
         
         if (player.gravityForce > std::numeric_limits<float>::epsilon())
         {
-            player.gravityForce = player.gravityForce * 50.f;
+            player.gravityForce = player.gravityForce * 30.f;
             player.gravity = glm::normalize(collisionPoint - player.position);
         }
         else
@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
         player.right = glm::normalize(glm::cross(player.direction, player.normal));
         
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            player.acceleration = glm::clamp(player.acceleration + 10.f, 0.f, 2500.f);
+            player.acceleration = glm::clamp(player.acceleration + 10.f, 0.f, 3000.f);
         else
             player.acceleration = 0;
         
@@ -178,18 +178,26 @@ int main(int argc, char* argv[])
         if (stopForce)
             player.force = glm::vec3(0);
         
-        camera.mProjection = glm::perspective(glm::quarter_pi<float>(), ratio, 0.1f, 10000.0f);
+        camera.mProjection = glm::perspective(glm::quarter_pi<float>() + glm::length(player.velocity) / 2000.0f, ratio, 0.1f, 100000.0f);
+        player.position = player.position + player.velocity * deltaTime;
+
+        glm::vec3 from = player.position - player.direction * glm::length(player.velocity) / 5.0f;
+
         
-        glm::vec3 from = player.position - player.direction - player.direction * glm::length(player.velocity) / 10.0f;
+        {
+            level.findNearestDelta(from, deltaOnSpline, 1);
+            float       radiusCamera = level.getRadius(deltaOnSpline);
+            glm::vec3   pointCamera = level.getPosition(deltaOnSpline);
+            glm::vec3   normalCamera = glm::normalize(from - pointCamera);
+            glm::vec3   cameraCollisionPoint = normalCamera * radiusCamera * 1.25f + pointCamera;
+
+
+            /*if (glm::distance(pointCamera, cameraCollisionPoint) >
+                glm::distance(pointCamera, from))
+                from = cameraCollisionPoint;*/
+        }
+        glm::vec3 to = from + player.direction * 2.f;
         
-        /*
-         level.findNearestDelta(from, deltaOnSpline, 1);
-        float radiusCamera = level.getRadius(deltaOnSpline);
-        glm::vec3 pointCamera = level.getPosition(deltaOnSpline);
-        glm::vec3 normalCamera = glm::normalize(from - pointCamera);
-        from += normalCamera;
-        */
-        glm::vec3 to = player.position + player.direction * 2.f;  
         camera.mView = glm::lookAt(from, to, player.normal);
         //camera.mView = glm::lookAt(glm::vec3(0, 0, 200),
         //	level.get(angle + 0.0001), glm::vec3(0, 1, 0));
@@ -204,10 +212,10 @@ int main(int argc, char* argv[])
 			material.MaterialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 			material.MaterialShininess = 64.f;
 
+            shaderDirectionalNoTex.bind();
 			shaderDirectionalNoTex.setMaterial(material);
 			shaderDirectionalNoTex.setLightDirection(lightDirection);
 			shaderDirectionalNoTex.setCamera(camera);
-
 			for (auto chunk : terrain.mTerrainRenderables)
 			{
 				Engine::VertexArray::Binder  bind1(chunk->vertexArray);
@@ -223,7 +231,7 @@ int main(int argc, char* argv[])
 			Render::Material material;
 			material.MaterialAmbient = glm::vec4(0.2f);
 			material.MaterialDiffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-			material.MaterialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			material.MaterialSpecular = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 			material.MaterialShininess = 64.f;
 			
 			shaderDirectional.bind();

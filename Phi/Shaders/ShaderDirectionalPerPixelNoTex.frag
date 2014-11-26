@@ -43,5 +43,6 @@ void main(void)
 	vec4 matDiff = uni_MaterialDiffuse*uni_MaterialDiffuse;
 
     out_FragColor.xyz = sqrt((intensity + uni_MaterialAmbient) * matDiff + spec).xyz;
-    out_FragColor.w = min(computeFresnelFactor(abs(dot(vertexShader_EyeNormal, e)), fresValue), 1.0);
+    out_FragColor.w = 1;
+    // min(computeFresnelFactor(abs(dot(vertexShader_EyeNormal, e)), fresValue), 1.0);
 }

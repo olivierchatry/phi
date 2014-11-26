@@ -6,13 +6,15 @@ namespace Game {
 
 	Level::Level()
 	{
-		mTrack.points.push_back(glm::vec3(-2000, -2000, 2000));
-		mTrack.radius.push_back(100);
-		mTrack.points.push_back(glm::vec3(-2000, 2000, 800));
+		mTrack.points.push_back(glm::vec3(-4000, -4000, 2000));
+		mTrack.radius.push_back(400);
+		mTrack.points.push_back(glm::vec3(-4000, 4000, 800));
 		mTrack.radius.push_back(200);
-		mTrack.points.push_back(glm::vec3(2000, 2000, 3000));
+		mTrack.points.push_back(glm::vec3(4000, 4000, 3000));
 		mTrack.radius.push_back(300);
-		mTrack.points.push_back(glm::vec3(2000, -2000, 4000));
+        mTrack.points.push_back(glm::vec3(4000, 2000, 8000));
+        mTrack.radius.push_back(300);
+		mTrack.points.push_back(glm::vec3(4000, -4000, 4000));
 		mTrack.radius.push_back(200);
 
 	}
@@ -26,12 +28,15 @@ namespace Game {
 		// get the nearest chunk.
 		for (auto chunk : mTrackChunks)
 		{
-			float chunkDistance = chunk->aabb.distanceFrom(position);
-			if (distance > chunkDistance)
-			{
-				distance = chunkDistance;
-				selectedChunk = chunk;
-			}
+            if (chunk->deltaStart <= delta /*&& delta <= chunk->deltaEnd*/)
+            {
+                float chunkDistance = chunk->aabb.distanceFrom(position);
+                if (distance > chunkDistance)
+                {
+                    distance = chunkDistance;
+                    selectedChunk = chunk;
+                }
+            }
 		}
 
 		if (selectedChunk == NULL)
@@ -39,14 +44,14 @@ namespace Game {
 		
 		float currentLength = FLT_MAX;
 
-		float deltaStart = selectedChunk->deltaStart;
+        float deltaStart = selectedChunk->deltaStart;
 		float deltaEnd = selectedChunk->deltaEnd;
 		float deltaDelta = mSmallestDelta;
 		
 
 		while (steps--)
 		{
-			for (float d = selectedChunk->deltaStart; d < selectedChunk->deltaEnd; d += mSmallestDelta)
+			for (float d = deltaStart; d < deltaEnd; d += deltaDelta)
 			{
 				float length = glm::distance2(getPosition(d), position);
 				if (length < currentLength)
@@ -161,7 +166,7 @@ namespace Game {
 
 			Render::AABB chunkAABB;
 			chunkAABB.reset();
-			float vDeltaRepeat = 1.f / trackChunkSize;
+			float vDeltaRepeat = 0.2f / trackChunkSize;
 			
 			size_t chunkStartPointInSpline = currentPointInSpline;
 			for (size_t i = 0; (i < trackChunkSize) && (currentPointInSpline < mGeneratedTrack.points.size() + 1); ++i)

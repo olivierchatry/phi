@@ -7,9 +7,6 @@ namespace Game
 {
     static void generateCube(Render::AABB& aabb, std::vector<float>& v)
     {
-        
-        GLushort current = (GLushort) v.size() / 6;
-        
         GLushort cube_elements[] = {
             // front
             0, 1, 2,
