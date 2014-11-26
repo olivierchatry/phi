@@ -29,9 +29,58 @@ namespace Game {
 
 	}
 
+	bool Level::findNearestDelta(glm::vec3& position, float& delta, int steps)
+	{		
+		float distance = std::numeric_limits<float>::max();
+		
+		TrackChunkRenderable* selectedChunk = NULL;
+		
+		// get the nearest chunk.
+		for (auto chunk : mTrackChunks)
+		{
+			float chunkDistance = chunk->aabb.distanceFrom(position);
+			if (distance > chunkDistance)
+			{
+				distance = chunkDistance;
+				selectedChunk = chunk;
+			}
+		}
 
-	void Level::generate(Render::IShaderPositionNormalUV& shader)
+		if (selectedChunk == NULL)
+			return false;
+		
+		float currentLength = FLT_MAX;
+
+		float deltaStart = selectedChunk->deltaStart;
+		float deltaEnd = selectedChunk->deltaEnd;
+		float deltaDelta = mSmallestDelta;
+		
+
+		while (steps--)
+		{
+			for (float d = selectedChunk->deltaStart; d < selectedChunk->deltaEnd; d += mSmallestDelta)
+			{
+				float length = glm::distance2(getPosition(d), position);
+				if (length < currentLength)
+				{
+					currentLength = length;
+					delta = d;
+				}
+			}
+			
+			deltaStart = delta - mSmallestDelta;
+			deltaEnd = delta + mSmallestDelta;
+			deltaDelta = mSmallestDelta / 2.0f;
+		}
+
+		return true;
+	}
+
+	void Level::generate(Render::IShaderPositionNormalUV& shader, GenerateArgument& arguments)
 	{
+		//////////////////////////////////////////////////////////////////////////
+		// generate crappy texture for testing.
+		//////////////////////////////////////////////////////////////////////////
 		std::vector<GLubyte> texture;
 		texture.resize(32 * 32 * 4);
 
@@ -52,7 +101,9 @@ namespace Game {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// compute len;
+		//////////////////////////////////////////////////////////////////////////
+		// compute total len of the track, in meters.
+		//////////////////////////////////////////////////////////////////////////
 		mTotalLength = 0;
 		for (size_t i = 0; i < mTrack.points.size(); ++i)
 		{
@@ -65,28 +116,31 @@ namespace Game {
 			glm::vec3 v = v2 - v1;
 			mTotalLength += glm::length(v);
 		}
-		std::vector<glm::vec3>	splines;
-		std::vector<float>		radius;
+		
+		//////////////////////////////////////////////////////////////////////////
+		// generate track position.
 		// we subdivide every meter.
-		mSmallestDelta = 2.f / mTotalLength;
+		//////////////////////////////////////////////////////////////////////////
+		mSmallestDelta = arguments.generatePointEvery / mTotalLength;
 		float current = 0;
+		
+		size_t genratedPointCount = (size_t) glm::ceil( (1 / mSmallestDelta)  );
+		mGeneratedTrack.points.reserve(genratedPointCount);
+		mGeneratedTrack.radius.reserve(genratedPointCount);
 
 		while (current < 1)
 		{
-			splines.push_back(get<glm::vec3>(current, mTrack.points));
-			radius.push_back(get<float>(current, mTrack.radius));
+			mGeneratedTrack.points.push_back(get<glm::vec3>(current, mTrack.points));
+			mGeneratedTrack.radius.push_back(get<float>(current, mTrack.radius));
 			current += mSmallestDelta;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		// compute angles to generate the circles for each part of the tube.
 		//////////////////////////////////////////////////////////////////////////
-
 		std::vector<glm::vec2> angles;
-		float pi = glm::pi<float>();
-		float twoPi = pi * 2.0f;
-		float count = 40;
-		float deltaAngle = twoPi / count;
+		float twoPi = glm::pi<float>() * 2.0f;
+		float deltaAngle = twoPi / arguments.circleSubDivice;
 		current = 0;
 		while (current < twoPi)
 		{
@@ -94,15 +148,20 @@ namespace Game {
 			current += deltaAngle;
 		}
 
-		size_t circleSize = angles.size();
-		size_t trackChunkSize = 100;
 
-
+		//////////////////////////////////////////////////////////////////////////
+		// actual generation of the vertex and indices. 
+		// we are chunking the track so that we can do some nice transparency rendering
+		// without to much rendering error.
+		//////////////////////////////////////////////////////////////////////////
+		size_t					circleSize = angles.size();
+		size_t					trackChunkCount = (size_t) glm::ceil(mTotalLength / arguments.chunkSize);
+		size_t					trackChunkSize  = (mGeneratedTrack.points.size() / trackChunkCount) * 2;
 		size_t					currentPointInSpline = 0;
 
-		mTrackChunks.reserve((splines.size() * 2) / trackChunkSize + 1);
+		mTrackChunks.reserve(trackChunkCount);
 
-		while (currentPointInSpline < splines.size())
+		while (currentPointInSpline < mGeneratedTrack.points.size())
 		{
 			std::vector<unsigned short>	indices;
 			std::vector<float>			vs;
@@ -114,17 +173,19 @@ namespace Game {
 			chunkAABB.reset();
 			float v = 0;
 			float vDeltaRepeat = 2.f / trackChunkSize;
-			for (size_t i = 0; (i < trackChunkSize) && (currentPointInSpline < splines.size() + 1); ++i)
+			
+			size_t chunkStartPointInSpline = currentPointInSpline;
+			for (size_t i = 0; (i < trackChunkSize) && (currentPointInSpline < mGeneratedTrack.points.size() + 1); ++i)
 			{
 
-				bool	generateIndices = (i != trackChunkSize - 1) && (currentPointInSpline < splines.size());
+				bool	generateIndices = (i != trackChunkSize - 1) && (currentPointInSpline < mGeneratedTrack.points.size());
 
-				size_t	actualCurrentPointInSpline = currentPointInSpline % splines.size();
-				size_t	nextPointInSpline = (currentPointInSpline + 1) % splines.size();
+				size_t	actualCurrentPointInSpline = currentPointInSpline % mGeneratedTrack.points.size();
+				size_t	nextPointInSpline = (currentPointInSpline + 1) % mGeneratedTrack.points.size();
 
 
-				glm::vec3& v1 = splines[actualCurrentPointInSpline];
-				glm::vec3& v2 = splines[nextPointInSpline];
+				glm::vec3& v1 = mGeneratedTrack.points[actualCurrentPointInSpline];
+				glm::vec3& v2 = mGeneratedTrack.points[nextPointInSpline];
 
 				glm::vec3 direction = glm::normalize(v2 - v1);
 				glm::vec3 up(0, 0, 1);
@@ -139,7 +200,9 @@ namespace Game {
 				for (size_t a = 0; a <= circleSize; ++a)
 				{
 					size_t actualAngle = a % circleSize;
-					glm::vec3 position = v1 + (right * angles[actualAngle].x * radius[actualCurrentPointInSpline] + up * angles[actualAngle].y * radius[actualCurrentPointInSpline]);
+					float radius = mGeneratedTrack.radius[actualCurrentPointInSpline];
+					glm::vec2& angle = angles[actualAngle];
+					glm::vec3 position = v1 + (right * angle.x * radius + up * angle.y * radius);
 
 					vs.push_back(position.x);
 					vs.push_back(position.y);
@@ -180,23 +243,17 @@ namespace Game {
 
 			if (!indices.empty())
 			{
-				if (currentPointInSpline < (splines.size() + 1))
-					currentPointInSpline--;
-				else
-					currentPointInSpline += 0;
 
 				TrackChunkRenderable* chunk = new TrackChunkRenderable();
-
 				chunk->aabb = chunkAABB;
-
-
 				chunk->count = (int)indices.size();
 				Utils::GenerateNormals(&indices[0], &vs[0], 8, chunk->count, 0, 3, false);
 
+				chunk->deltaStart = chunkStartPointInSpline * mSmallestDelta;
+				chunk->deltaEnd = currentPointInSpline* mSmallestDelta;
 
 				chunk->indexBuffer.create(GL_STATIC_DRAW, indices.size() * sizeof(unsigned short));
 				chunk->indexBuffer.update(&indices[0], 0, indices.size() * sizeof(unsigned short));
-
 				chunk->vertexBuffer.create(GL_STATIC_DRAW, vs.size() * sizeof(float));
 				chunk->vertexBuffer.update(&vs[0], 0, vs.size() * sizeof(float));
 				chunk->vertexArray.create();
@@ -210,6 +267,8 @@ namespace Game {
 					chunk->vertexArray.attrib(shader.getVsUV(), 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 6 * sizeof(float));
 				}
 				mTrackChunks.push_back(chunk);
+				if (currentPointInSpline < (mGeneratedTrack.points.size() + 1))
+					currentPointInSpline--;
 			}
 
 		}

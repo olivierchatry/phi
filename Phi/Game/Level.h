@@ -9,15 +9,32 @@ namespace Game {
     class Level {
     public:
         Level();
-        
+	public:
+		struct GenerateArgument
+		{
+			GenerateArgument()
+			{
+				// generate a point every 2 meters.
+				generatePointEvery = 2.f;
+				// size of a track chunk in meters.
+				chunkSize = 40;
+				// number of subdivision of each ring around a point.
+				circleSubDivice = 40;
+			}
+
+			float generatePointEvery;
+			float chunkSize;
+			float circleSubDivice;
+		};
+
     public:
-		void generate(Render::IShaderPositionNormalUV& shader);
+		void generate(Render::IShaderPositionNormalUV& shader, GenerateArgument& arguments);
         void render();
 		void destroy();
 	
 	public:
 		void computeChunkDistanceToCamera(const glm::vec3& position, const glm::vec3& direction);
-
+		bool findNearestDelta(glm::vec3& position, float& deltaFound, int steps = 1);
 	public:
 		glm::vec3 getPosition(float delta)
 		{
@@ -94,14 +111,18 @@ namespace Game {
 			Engine::VertexArray					vertexArray;			
 			Render::AABB						aabb;
 			float								distance;
+			
+			float								deltaStart;
+			float								deltaEnd;
 		};
 
+		GenerateArgument					mGenerationArguments;
 		std::vector<TrackChunkRenderable*>	mTrackChunks;
 		Track								mTrack;
 		Engine::Texture						mTexture;
 		float								mSmallestDelta;
         float                               mTotalLength;
-	
+		Track								mGeneratedTrack;
 	public:
 		static bool sortByDistance(TrackChunkRenderable* a, TrackChunkRenderable* b)
 		{
