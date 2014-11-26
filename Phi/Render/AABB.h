@@ -14,14 +14,57 @@ namespace Render {
 		{
 			return (max - min) * 0.5f + min;
 		}
+        
+        glm::vec3 corner(int i)
+        {
+            switch (i)
+            {
+                case 0:
+                    return min;
+                case 1:
+                    return glm::vec3(max.x, min.y, min.z);
+                case 2:
+                    return glm::vec3(max.x, max.y, min.z);
+                case 3:
+                    return glm::vec3(min.x, max.y, min.z);
+                case 4:
+                    return glm::vec3(min.x, min.y, max.z);
+                case 5:
+                    return glm::vec3(max.x, min.y, max.z);
+                case 6:
+                    return max;
+                case 7:
+                    return glm::vec3(min.x, max.y, max.z);
+                default:
+                    return glm::vec3(0);
+            }
+        }
 
-		
+        void add(const AABB& aabb)
+        {
+            min = glm::min(min, aabb.min);
+            max = glm::max(max, aabb.min);
+            
+            min = glm::min(min, aabb.max);
+            max = glm::max(max, aabb.max);
+        }
+        
 		void add(const glm::vec3& p) 
 		{
 			min = glm::min(min, p);
 			max = glm::max(max, p);
 		}
 
+        glm::vec3 size()
+        {
+            glm::vec3 ret = (max - min);
+            ret.x = glm::sqrt(ret.x * ret.x);
+            ret.y = glm::sqrt(ret.y * ret.y);
+            ret.z = glm::sqrt(ret.z * ret.z);
+            
+            return ret;
+        }
+        
 		glm::vec3 nearestPoint(const glm::vec3 &p) const
 		{
 			glm::vec3 r;

@@ -123,6 +123,7 @@ namespace Game {
 		float								mSmallestDelta;
         float                               mTotalLength;
 		Track								mGeneratedTrack;
+        Render::AABB                        mLevelAABB;
 	public:
 		static bool sortByDistance(TrackChunkRenderable* a, TrackChunkRenderable* b)
 		{

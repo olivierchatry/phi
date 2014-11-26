@@ -80,7 +80,7 @@ namespace Game {
 				texture[offset + 0] = 255;
 				texture[offset + 1] = 255;
 				texture[offset + 2] = 255;
-				texture[offset + 3] = ((x > 4) && (x < 28) && (y > 4) && (y < 28)) ? 0 : 255;
+				texture[offset + 3] = ((x > 4) && (x < 28) && (y > 4) && (y < 28)) ? 32 : 255;
 			}
 		}
 		mTexture.createFromBuffer(&(texture[0]), 32, 32, GL_TEXTURE_2D, 4);
@@ -149,6 +149,8 @@ namespace Game {
 
 		mTrackChunks.reserve(trackChunkCount);
 
+        float v = 0;
+        mLevelAABB.reset();
 		while (currentPointInSpline < mGeneratedTrack.points.size())
 		{
 			std::vector<unsigned short>	indices;
@@ -159,8 +161,7 @@ namespace Game {
 
 			Render::AABB chunkAABB;
 			chunkAABB.reset();
-			float v = 0;
-			float vDeltaRepeat = 2.f / trackChunkSize;
+			float vDeltaRepeat = 1.f / trackChunkSize;
 			
 			size_t chunkStartPointInSpline = currentPointInSpline;
 			for (size_t i = 0; (i < trackChunkSize) && (currentPointInSpline < mGeneratedTrack.points.size() + 1); ++i)
@@ -232,6 +233,7 @@ namespace Game {
 			if (!indices.empty())
 			{
 
+                mLevelAABB.add(chunkAABB);
 				TrackChunkRenderable* chunk = new TrackChunkRenderable();
 				chunk->aabb = chunkAABB;
 				chunk->count = (int)indices.size();

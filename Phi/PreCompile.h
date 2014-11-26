@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 #	include <glm/glm.hpp>
 #	include <glm/ext.hpp>
+#   include <glm/gtc/random.hpp>
 #   include <vector>
 #   include <fstream>
 #   include <string>

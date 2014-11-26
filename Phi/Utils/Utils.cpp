@@ -24,19 +24,19 @@ namespace Utils
 		}
 	}
 
-	void GenerateNormals(unsigned short* index, GLfloat* vs, int stride, int count, int offsetVertex, int offsetNormal, bool zeroNormalsBefore)
+	void GenerateNormals(GLushort* index, GLfloat* vs, int stride, int count, int offsetVertex, int offsetNormal, bool zeroNormalsBefore)
 	{
 		if (zeroNormalsBefore)
 		{
-			int		temp = count;
-			unsigned short*	tempIndex = index;
+			int         temp = count;
+            GLushort*	tempIndex = index;
 
 			while (temp--)
 				*((glm::vec3*) (vs + *(tempIndex++) * stride + offsetNormal)) = glm::vec3(0);
 		}
 		{
-			int		temp = count / 3;
-			unsigned short*	tempIndex = index;
+			int         temp = count / 3;
+            GLushort*	tempIndex = index;
 
 			while (temp--)
 			{
@@ -58,8 +58,8 @@ namespace Utils
 			}
 		}
 		{
-			int				temp = count;
-			unsigned short*	tempIndex = index;
+			int			temp = count;
+            GLushort*	tempIndex = index;
 
 			while (temp--)
 			{
