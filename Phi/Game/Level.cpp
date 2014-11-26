@@ -6,26 +6,14 @@ namespace Game {
 
 	Level::Level()
 	{
-		mTrack.points.push_back(glm::vec3(-2000, 0, 1000));
-		mTrack.radius.push_back(10);
-		mTrack.points.push_back(glm::vec3(0, 2000, -1000));
-		mTrack.radius.push_back(20);
-		mTrack.points.push_back(glm::vec3(2000, 0, 0));
-		mTrack.radius.push_back(30);
-		mTrack.points.push_back(glm::vec3(0, -1000, 500));
-		mTrack.radius.push_back(40);
-
-		mTrack.points.push_back(glm::vec3(-2000, -1000, 800));
-		mTrack.radius.push_back(50);
-
-		mTrack.points.push_back(glm::vec3(-2000, 0, 3000));
-		mTrack.radius.push_back(40);
-
-		mTrack.points.push_back(glm::vec3(-2500, 0, 2500));
-		mTrack.radius.push_back(30);
-
-		mTrack.points.push_back(glm::vec3(-1500, 0, 1500));
-		mTrack.radius.push_back(20);
+		mTrack.points.push_back(glm::vec3(-2000, -2000, 1000));
+		mTrack.radius.push_back(100);
+		mTrack.points.push_back(glm::vec3(-2000, 2000, 500));
+		mTrack.radius.push_back(200);
+		mTrack.points.push_back(glm::vec3(2000, 2000, 0));
+		mTrack.radius.push_back(300);
+		mTrack.points.push_back(glm::vec3(2000, -2000, 500));
+		mTrack.radius.push_back(200);
 
 	}
 
