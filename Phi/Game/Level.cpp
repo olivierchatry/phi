@@ -28,7 +28,7 @@ namespace Game {
 		// get the nearest chunk.
 		for (auto chunk : mTrackChunks)
 		{
-            if (chunk->deltaStart <= delta /*&& delta <= chunk->deltaEnd*/)
+            if (chunk->deltaStart <= delta)
             {
                 float chunkDistance = chunk->aabb.distanceFrom(position);
                 if (distance > chunkDistance)
@@ -61,9 +61,9 @@ namespace Game {
 				}
 			}
 			
-			deltaStart = delta - mSmallestDelta;
-			deltaEnd = delta + mSmallestDelta;
-			deltaDelta = mSmallestDelta / 2.0f;
+			deltaStart = glm::max(0.f, delta - deltaDelta);
+			deltaEnd = delta + deltaDelta;
+			deltaDelta = mSmallestDelta * 0.5f;
 		}
 
 		return true;
@@ -208,7 +208,7 @@ namespace Game {
 
 					vs.push_back(u);
 					vs.push_back(v);
-
+					
 					u += uDeltaRepeat;
 
 					chunkAABB.add(position);
@@ -244,8 +244,11 @@ namespace Game {
 				chunk->count = (int)indices.size();
 				Utils::GenerateNormals(&indices[0], &vs[0], 8, chunk->count, 0, 3, false);
 
-				chunk->deltaStart = chunkStartPointInSpline * mSmallestDelta;
-				chunk->deltaEnd = currentPointInSpline* mSmallestDelta;
+				chunk->deltaStart = (chunkStartPointInSpline + 1) * mSmallestDelta;
+				chunk->deltaEnd = (currentPointInSpline) * mSmallestDelta;
+				if (chunk->deltaStart < 0)
+					chunk->deltaStart = 0;
+					
 
 				chunk->indexBuffer.create(GL_STATIC_DRAW, indices.size() * sizeof(unsigned short));
 				chunk->indexBuffer.update(&indices[0], 0, indices.size() * sizeof(unsigned short));

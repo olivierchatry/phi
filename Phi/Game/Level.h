@@ -70,7 +70,7 @@ namespace Game {
 			float t2 = t1 * t1;
 			float t3 = t1 * t2;
 
-			p0 = (int)floor(pathpos) % size;
+			p0 = (int)glm::floor(pathpos) % size;
 			p1 = (p0 + 1) % size;
 			rp0 = (p0 + (size - 1)) % size;
 			rp1 = (p0 + 2) % size;

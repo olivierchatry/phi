@@ -21,6 +21,33 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+template <typename T>
+struct Smooth
+{
+	Smooth(size_t sampleCount)
+	{
+		values.resize(sampleCount, T(0));
+		total = (T)0.f;
+		ring = 0;
+	}
+
+	void add(T& v)
+	{
+		size_t i = (ring % values.size());
+		total += v - values[i];
+		values[i] = v;
+		ring++;
+	}
+
+	T	get()
+	{
+		return total / (T)(values.size());
+	}
+
+	std::vector<T>	values;
+	size_t			ring;
+	T				total;
+};
 
 
 
@@ -80,35 +107,43 @@ int main(int argc, char* argv[])
     struct Player
     {
         glm::vec3	position;
-        glm::vec3	direction;
-        glm::vec3   force;
+        glm::vec3	direction;		
+		
+		glm::vec3	sideBoostVelocity;
+		float		sideBoostForce;
         
-        glm::vec3	gravity;
+		glm::vec3	gravityVelocity;
         float		gravityForce;
         
-        glm::vec3	normal;
+		glm::vec3	gravity;
+		glm::vec3	normal;
         glm::vec3	right;
         
-        float		acceleration;
-        glm::vec3	velocity;
+		glm::vec3	boosterVelocity;
+		float		boosterForce;
         
     };
     
     Player player;
     
-    player.position  = level.getPosition(0.f) + level.getNormal(0.f) * (level.getRadius(0.f) * 1.1f);
-    player.direction = level.getPosition(level.mSmallestDelta) + level.getNormal(level.mSmallestDelta) * (level.getRadius(level.mSmallestDelta) * 1.1f) - player.position;
+    player.position  = level.getPosition(0.f) + level.getNormal(0.f) * (level.getRadius(0.f) * 1.2f);
+    player.direction = level.getPosition(level.mSmallestDelta) + level.getNormal(level.mSmallestDelta) * (level.getRadius(level.mSmallestDelta) * 1.2f) - player.position;
     
-    player.force = glm::vec3(0.f);
+    player.sideBoostForce = 0.f;
+	player.sideBoostVelocity = glm::vec3(0.f);
+
     player.gravityForce = 0.f;
-    
+	player.gravityVelocity = glm::vec3(0.f);
+
     player.normal = glm::vec3(0.f, 0.f, 1.f);
     
-    player.velocity = glm::vec3(0.f);
-    player.acceleration = 0.f;
-    
+	player.boosterVelocity = glm::vec3(0.f);
+	player.boosterForce = 0.f;
+	
     double time = glfwGetTime();
-    float oldDelta = 0;
+    float oldDeltaOnSpline = 0;
+	Smooth<glm::vec3> velocitySmoothed(10);
+
     while (!glfwWindowShouldClose(window))
     {
         float ratio;
@@ -128,60 +163,66 @@ int main(int argc, char* argv[])
         
         
         
-        player.velocity += (player.direction + player.force) * player.acceleration * deltaTime;
-        player.velocity += player.gravity * player.gravityForce * deltaTime;
-        /*player.velocity += player.right * player.force * deltaTime;*/
-        player.velocity *= 0.97f;
-        
-        
-        float deltaOnSpline = oldDelta;
-        level.findNearestDelta(player.position, deltaOnSpline, 1);
-        oldDelta = deltaOnSpline;
+		player.boosterVelocity += player.direction *  player.boosterForce * deltaTime;
+		player.boosterVelocity *= 0.98f;
+		
+		player.sideBoostVelocity += player.right * player.sideBoostForce * deltaTime;
+		player.sideBoostVelocity *= 0.98f;
+
+		player.gravityVelocity += player.gravity * player.gravityForce * deltaTime;
+		player.gravityVelocity *= 0.99f;
+
+		player.position = player.position + (player.boosterVelocity + player.sideBoostVelocity + player.gravityVelocity) * deltaTime;
+		float deltaOnSpline = oldDeltaOnSpline;
+				
+		level.findNearestDelta(player.position, deltaOnSpline, 4);
+		if (deltaOnSpline <= oldDeltaOnSpline)
+			deltaOnSpline += level.mSmallestDelta;
+		oldDeltaOnSpline = deltaOnSpline;
         glm::vec3	pointOnSpline = level.getPosition(deltaOnSpline);
         
-        player.direction = glm::normalize(player.direction + glm::normalize(level.getPosition(deltaOnSpline + level.mSmallestDelta) - pointOnSpline));
-        
+        player.direction = glm::normalize(player.direction + glm::normalize(level.getPosition(deltaOnSpline + 0.01f) - pointOnSpline));      
         float radius = level.getRadius(deltaOnSpline);
         
         glm::vec3 vecToPoint = glm::normalize(player.position - pointOnSpline);
-        glm::vec3 collisionPoint = vecToPoint * radius * 1.2f + pointOnSpline;
-        glm::vec3 hittingPoint = vecToPoint * radius + pointOnSpline;
+        glm::vec3 collisionPoint	= vecToPoint * radius * 1.2f + pointOnSpline;
+        glm::vec3 hittingPoint		= vecToPoint * radius + pointOnSpline;
         float distancePlayerToSpline = glm::distance(pointOnSpline, player.position);
         float distanceTrackToSpline = glm::distance(pointOnSpline, hittingPoint);
         
         player.gravityForce = glm::distance(collisionPoint, player.position);
         
-        if (player.gravityForce > std::numeric_limits<float>::epsilon())
-        {
-            player.gravityForce = player.gravityForce * 30.f;
-            player.gravity = glm::normalize(collisionPoint - player.position);
-        }
-        else
-            player.gravity = glm::vec3(0);
-        
-        if (distanceTrackToSpline > distancePlayerToSpline)
+		if (player.gravityForce > std::numeric_limits<float>::epsilon())
+			player.gravity = glm::normalize(collisionPoint - player.position);
+		else
+			player.gravity = glm::vec3(0);		
+		
+		player.gravityForce *= 10.f;
+		if (distanceTrackToSpline > distancePlayerToSpline)
             player.position = hittingPoint;
         
         player.normal = glm::normalize(vecToPoint);
         player.right = glm::normalize(glm::cross(player.direction, player.normal));
         
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            player.acceleration = glm::clamp(player.acceleration + 10.f, 0.f, 3000.f);
+			player.boosterForce = glm::clamp(player.boosterForce + 10.f, 0.f, 3000.f);
         else
-            player.acceleration = 0;
+			player.boosterForce = 0;
         
         bool stopForce = true;
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            player.force = glm::clamp(player.force - player.right * 0.5f, -4.f, 4.f), stopForce = false;
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+			player.sideBoostForce = -player.boosterForce * 1.2f, stopForce = false;
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            player.force = glm::clamp(player.force + player.right * 0.5f, -4.f, 4.f), stopForce = false;
+			player.sideBoostForce = player.boosterForce * 1.2f, stopForce = false;
         if (stopForce)
-            player.force = glm::vec3(0);
+			player.sideBoostForce = 0.f;
+		velocitySmoothed.add(player.boosterVelocity);
+		float fov = (glm::clamp(glm::length(velocitySmoothed.get()), 0.f, 4000.f) / 4000.0f) * glm::quarter_pi<float>();
+		printf("%f\n", fov);
+		camera.mProjection = glm::perspective(glm::quarter_pi<float>() + fov, ratio, 0.1f, 100000.0f);
         
-        camera.mProjection = glm::perspective(glm::quarter_pi<float>() + glm::length(player.velocity) / 2000.0f, ratio, 0.1f, 100000.0f);
-        player.position = player.position + player.velocity * deltaTime;
 
-        glm::vec3 from = player.position - player.direction * glm::length(player.velocity) / 5.0f;
+        glm::vec3 from = player.position;
 
         
         {
@@ -189,14 +230,14 @@ int main(int argc, char* argv[])
             float       radiusCamera = level.getRadius(deltaOnSpline);
             glm::vec3   pointCamera = level.getPosition(deltaOnSpline);
             glm::vec3   normalCamera = glm::normalize(from - pointCamera);
-            glm::vec3   cameraCollisionPoint = normalCamera * radiusCamera * 1.25f + pointCamera;
+            glm::vec3   cameraCollisionPoint = normalCamera * radiusCamera * 1.1f + pointCamera;
 
 
-            /*if (glm::distance(pointCamera, cameraCollisionPoint) >
+            if (glm::distance(pointCamera, cameraCollisionPoint) >
                 glm::distance(pointCamera, from))
-                from = cameraCollisionPoint;*/
+                from = cameraCollisionPoint;
         }
-        glm::vec3 to = from + player.direction * 2.f;
+		glm::vec3 to = from + player.direction;
         
         camera.mView = glm::lookAt(from, to, player.normal);
         //camera.mView = glm::lookAt(glm::vec3(0, 0, 200),
