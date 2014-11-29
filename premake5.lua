@@ -16,10 +16,11 @@ project "Phi"
 		"Externals/stb_image/*.h"
 	}
 	includedirs {"Externals/glfw/include", "Externals/glew/include",  "Externals/glm", "Externals/stb_image/", "Phi"}
-	location ("build")
 	floatingpoint "Fast"
 	flags       { "Symbols" }
 	debugdir "Phi"
+	pchsource "Phi/PreCompile.cpp"
+	location ("build")
 
 	os.mkdir("build")
 	os.copydir("Phi/Shaders", "build/Shaders")
@@ -30,7 +31,6 @@ project "Phi"
 
 	configuration "vs*"
 		pchheader "PreCompile.h"
-		pchsource "Phi/PreCompile.cpp"
 		defines     { "_CRT_SECURE_NO_WARNINGS" }
 
 	configuration "vs2005"
@@ -48,6 +48,7 @@ project "Phi"
 		linkoptions  { "-mmacosx-version-min=10.4" }
 
 	configuration "macosx"
+		pchheader "../Phi/PreCompile.h"
 		libdirs "Externals/glfw/lib/osx"
 		links       { "glfw3", "OpenGL.framework", "CoreFoundation.framework", "Cocoa.framework", "IOKit.framework", "AGL.framework"}
 	configuration "linux"

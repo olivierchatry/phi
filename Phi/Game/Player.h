@@ -1,10 +1,13 @@
 #pragma once
 
+#include <Game/GameEntity.h>
+
 namespace Game
 {
-    struct Player
+    class Player : public GameEntity
     {
-    
+        void initialize(Intialize &intialize) override;
+        void update(Update& intialize) override;
     };
 };
 

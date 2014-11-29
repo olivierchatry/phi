@@ -19,6 +19,7 @@
 #   include <string>
 #	include <limits>
 #	include <algorithm>
+#   include <map>
 #endif
 
 #include <stb_image.h>
