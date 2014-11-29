@@ -190,7 +190,7 @@ namespace Game {
 				float uDeltaRepeat = 5.f / (float)circleSize;
 				float u = 0;
 
-				for (size_t a = 0; a < circleSize; ++a)
+				for (size_t a = 0; a <= circleSize; ++a)
 				{
 					size_t actualAngle = a % circleSize;
 					float radius = mGeneratedTrack.radius[actualCurrentPointInSpline];
