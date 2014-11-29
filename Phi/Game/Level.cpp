@@ -24,11 +24,11 @@ namespace Game {
 		float distance = std::numeric_limits<float>::max();
 		
 		TrackChunkRenderable* selectedChunk = NULL;
-		
+        float deltaEspilon = ( delta + std::numeric_limits<float>::epsilon());
 		// get the nearest chunk.
 		for (auto chunk : mTrackChunks)
 		{
-            if (chunk->deltaStart <= delta)
+            if (chunk->deltaStart <=  deltaEspilon && deltaEspilon <= chunk->deltaEnd)
             {
                 float chunkDistance = chunk->aabb.distanceFrom(position);
                 if (distance > chunkDistance)
@@ -38,13 +38,12 @@ namespace Game {
                 }
             }
 		}
-
 		if (selectedChunk == NULL)
 			return false;
 		
 		float currentLength = FLT_MAX;
 
-        float deltaStart = selectedChunk->deltaStart;
+        float deltaStart = glm::max(selectedChunk->deltaStart, delta);
 		float deltaEnd = selectedChunk->deltaEnd;
 		float deltaDelta = mSmallestDelta;
 		
@@ -54,7 +53,7 @@ namespace Game {
 			for (float d = deltaStart; d < deltaEnd; d += deltaDelta)
 			{
 				float length = glm::distance2(getPosition(d), position);
-				if (length < currentLength)
+				if (length < currentLength && d > delta)
 				{
 					currentLength = length;
 					delta = d;
@@ -85,7 +84,7 @@ namespace Game {
 				texture[offset + 0] = 255;
 				texture[offset + 1] = 255;
 				texture[offset + 2] = 255;
-				texture[offset + 3] = ((x > 4) && (x < 28) && (y > 4) && (y < 28)) ? 32 : 255;
+				texture[offset + 3] = (y > 4) && (y < 28) ? 32 : 255;
 			}
 		}
 		mTexture.createFromBuffer(&(texture[0]), 32, 32, GL_TEXTURE_2D, 4);
@@ -191,7 +190,7 @@ namespace Game {
 				float uDeltaRepeat = 5.f / (float)circleSize;
 				float u = 0;
 
-				for (size_t a = 0; a <= circleSize; ++a)
+				for (size_t a = 0; a < circleSize; ++a)
 				{
 					size_t actualAngle = a % circleSize;
 					float radius = mGeneratedTrack.radius[actualCurrentPointInSpline];
@@ -242,9 +241,10 @@ namespace Game {
 				TrackChunkRenderable* chunk = new TrackChunkRenderable();
 				chunk->aabb = chunkAABB;
 				chunk->count = (int)indices.size();
+                chunk->id = mTrackChunks.size();
 				Utils::GenerateNormals(&indices[0], &vs[0], 8, chunk->count, 0, 3, false);
 
-				chunk->deltaStart = (chunkStartPointInSpline + 1) * mSmallestDelta;
+				chunk->deltaStart = (chunkStartPointInSpline) * mSmallestDelta;
 				chunk->deltaEnd = (currentPointInSpline) * mSmallestDelta;
 				if (chunk->deltaStart < 0)
 					chunk->deltaStart = 0;

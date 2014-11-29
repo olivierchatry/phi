@@ -114,6 +114,8 @@ namespace Game {
 			
 			float								deltaStart;
 			float								deltaEnd;
+            
+            int                                 id;
 		};
 
 		GenerateArgument					mGenerationArguments;

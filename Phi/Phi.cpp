@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
     double time = glfwGetTime();
     float oldDeltaOnSpline = 0;
 	Smooth<glm::vec3> velocitySmoothed(10);
-
+    double lapStartTime = glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
         float ratio;
@@ -159,29 +159,44 @@ int main(int argc, char* argv[])
         
         double currentTime = glfwGetTime();
         float deltaTime = (float)(currentTime - time);
-        time = currentTime;
         
         
-        
-		player.boosterVelocity += player.direction *  player.boosterForce * deltaTime;
+        float malus = player.gravityForce / 12.f;
+        /*if (malus > 15.f)
+            player.boosterForce *= 0.98f;
+        malus = 0.f;*/
+
+        player.boosterVelocity += player.direction *  (player.boosterForce - malus) * deltaTime;
 		player.boosterVelocity *= 0.98f;
 		
 		player.sideBoostVelocity += player.right * player.sideBoostForce * deltaTime;
 		player.sideBoostVelocity *= 0.98f;
 
 		player.gravityVelocity += player.gravity * player.gravityForce * deltaTime;
-		player.gravityVelocity *= 0.99f;
-
+		player.gravityVelocity *= 0.98f;
+        glm::vec3 previous = player.position;
 		player.position = player.position + (player.boosterVelocity + player.sideBoostVelocity + player.gravityVelocity) * deltaTime;
 		float deltaOnSpline = oldDeltaOnSpline;
-				
-		level.findNearestDelta(player.position, deltaOnSpline, 4);
-		if (deltaOnSpline <= oldDeltaOnSpline)
-			deltaOnSpline += level.mSmallestDelta;
+
+        level.findNearestDelta(player.position, deltaOnSpline, 1);
+		if (deltaOnSpline > 1.f)
+        {
+            deltaOnSpline -= 1.f;
+            level.findNearestDelta(player.position, deltaOnSpline, 1);
+            float deltaToStart = 1.f - oldDeltaOnSpline;
+            float deltaTotal = deltaTime + deltaToStart;
+            float percent = deltaToStart / deltaTotal;
+            double lapTime = currentTime + (time - currentTime) * percent;
+            printf("(%f -> %f) !!! LAP %0.4lf\n", oldDeltaOnSpline, deltaOnSpline, lapTime - lapStartTime);
+            lapStartTime = lapTime;
+        }
+        
+        time = currentTime;
+        
 		oldDeltaOnSpline = deltaOnSpline;
         glm::vec3	pointOnSpline = level.getPosition(deltaOnSpline);
         
-        player.direction = glm::normalize(player.direction + glm::normalize(level.getPosition(deltaOnSpline + 0.01f) - pointOnSpline));      
+        player.direction = glm::normalize(player.direction + glm::normalize(level.getPosition(deltaOnSpline + level.mSmallestDelta * 2.f) - pointOnSpline));
         float radius = level.getRadius(deltaOnSpline);
         
         glm::vec3 vecToPoint = glm::normalize(player.position - pointOnSpline);
@@ -191,13 +206,12 @@ int main(int argc, char* argv[])
         float distanceTrackToSpline = glm::distance(pointOnSpline, hittingPoint);
         
         player.gravityForce = glm::distance(collisionPoint, player.position);
-        
 		if (player.gravityForce > std::numeric_limits<float>::epsilon())
 			player.gravity = glm::normalize(collisionPoint - player.position);
 		else
 			player.gravity = glm::vec3(0);		
 		
-		player.gravityForce *= 10.f;
+		player.gravityForce *= 12.f;
 		if (distanceTrackToSpline > distancePlayerToSpline)
             player.position = hittingPoint;
         
@@ -217,9 +231,10 @@ int main(int argc, char* argv[])
         if (stopForce)
 			player.sideBoostForce = 0.f;
 		velocitySmoothed.add(player.boosterVelocity);
-		float fov = (glm::clamp(glm::length(velocitySmoothed.get()), 0.f, 4000.f) / 4000.0f) * glm::quarter_pi<float>();
-		printf("%f\n", fov);
-		camera.mProjection = glm::perspective(glm::quarter_pi<float>() + fov, ratio, 0.1f, 100000.0f);
+        
+		float fov = (glm::clamp(glm::length(velocitySmoothed.get()), 0.f, 4000.f) / 4000.0f) * glm::quarter_pi<float>() * 1.5f;
+
+		camera.mProjection = glm::perspective(glm::quarter_pi<float>() + fov, ratio, 0.1f, 10000.0f);
         
 
         glm::vec3 from = player.position;
@@ -286,34 +301,25 @@ int main(int argc, char* argv[])
             shaderDirectional.mShader.setUniform(shaderDirectional.mTexture, 0);
             level.mTexture.bind(0);
             
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            glEnable(GL_CULL_FACE);
+
             for (auto chunk : level.mTrackChunks)
             {
                 Engine::VertexArray::Binder  bind1(chunk->vertexArray);
                 Engine::IndexBuffer::Binder  bind3(chunk->indexBuffer);
                 
-                glEnable(GL_BLEND);
-                glBlendEquation(GL_FUNC_ADD);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 
-                glEnable(GL_CULL_FACE);
                 glCullFace(GL_FRONT);
+                glDrawElements(GL_TRIANGLES, chunk->count, GL_UNSIGNED_SHORT, 0);
+                glCullFace(GL_BACK);
                 glDrawElements(GL_TRIANGLES, chunk->count, GL_UNSIGNED_SHORT, 0);
             }
             
             
-            for (auto chunk : level.mTrackChunks)
-            {
-                Engine::VertexArray::Binder  bind1(chunk->vertexArray);
-                Engine::IndexBuffer::Binder  bind3(chunk->indexBuffer);
-                
-                glEnable(GL_BLEND);
-                glBlendEquation(GL_FUNC_ADD);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                
-                glEnable(GL_CULL_FACE);
-                glCullFace(GL_BACK);
-                glDrawElements(GL_TRIANGLES, chunk->count, GL_UNSIGNED_SHORT, 0);				
-            }
         }
         
         glfwSwapBuffers(window);

@@ -96,7 +96,7 @@ namespace Game
         {
             for (float x = aabb.min.x; x < aabb.max.x; x += delta.x)
             {
-                float z = glm::linearRand(0.f, 500.f);
+                float z = glm::linearRand(0.f, 1000.f);
                 Render::AABB current;
                 current.min = glm::vec3(x, y, 0);
                 current.max = glm::vec3(x + delta.x, y + delta.y, z);
