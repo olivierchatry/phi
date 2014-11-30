@@ -241,7 +241,7 @@ namespace Engine
 	void VertexArray::attrib(GLuint index, int size, int type, int normalized, int stride, int offset)
 	{
 		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index, size, type, normalized, stride, (void*) offset);
+		glVertexAttribPointer(index, size, type, normalized, stride, (void*) (size_t)offset);
 	}
 	
 	void Texture::createFromBuffer(GLubyte* buffer, int width, int height, int type, int channels)
