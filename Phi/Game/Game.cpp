@@ -12,7 +12,7 @@ namespace Game
     {
         mGameParts[id] = part;
     }
-    
+        
     Game::State::List Game::update(Update &update)
     {
         if (mCurrentGamePart)
@@ -40,5 +40,10 @@ namespace Game
         }
         mGameParts.clear();
         mCurrentGamePart = NULL;
+    }
+    
+    void    Game::render(RenderArg& render)
+    {
+        mCurrentGamePart->render(render);
     }
 }

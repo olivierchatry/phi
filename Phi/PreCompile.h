@@ -14,6 +14,8 @@
 #	include <glm/glm.hpp>
 #	include <glm/ext.hpp>
 #   include <glm/gtc/random.hpp>
+#   include <glm/gtx/matrix_major_storage.hpp>
+#   include <glm/gtx/matrix_interpolation.hpp>
 #   include <vector>
 #   include <fstream>
 #   include <string>

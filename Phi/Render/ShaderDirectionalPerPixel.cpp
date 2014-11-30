@@ -26,18 +26,14 @@ namespace Render
 		mTexture = mShader.getUniform("uni_Texture");
 		
 	}
-	
-	void ShaderDirectionalPerPixel::bind()
-	{
-		mShader.bind();
-	}
-	
+		
 	void  ShaderDirectionalPerPixel::setMaterial(Material& material)
 	{
 		mShader.setUniform(mMaterialShininess, material.MaterialShininess);
 		mShader.setUniform(mMaterialDiffuse, material.MaterialDiffuse);
 		mShader.setUniform(mMaterialSpecular, material.MaterialSpecular);
 		mShader.setUniform(mMaterialAmbient, material.MaterialAmbient);
+        mShader.setUniform(mTexture, material.TextureDiffuse);
 	}
 	
 	void  ShaderDirectionalPerPixel::setLightDirection(glm::vec3& direction)
@@ -45,12 +41,11 @@ namespace Render
 		mShader.setUniform(mLightDirection, direction);
 	}
 	
-	void  ShaderDirectionalPerPixel::setCamera(Camera& camera)
+	void  ShaderDirectionalPerPixel::setMatrices(glm::mat4& projection, glm::mat4& view, glm::mat4& model)
 	{
-		mShader.setUniform(mMatrixView, camera.mView);
-		mShader.setUniform(mMatrixProjection, camera.mProjection);
-		glm::mat3 matrixNormal(1.f);
-
+		mShader.setUniform(mMatrixView, view);
+		mShader.setUniform(mMatrixProjection, projection);
+        glm::mat3 matrixNormal(glm::extractMatrixRotation(model));
 		mShader.setUniform(mMatrixNormal, matrixNormal);
 		
 	}

@@ -1,4 +1,5 @@
 #include <PreCompile.h>
+
 #include <Utils/Utils.h>
 
 namespace Utils
@@ -116,4 +117,42 @@ namespace Utils
 		glm::vec3 top = (n2n3 * d1) + glm::cross(n1, (d3*n2) - (d2*n3));
 		return top / -denom;
 	}
+    
+    void GenerateCube(Render::AABB& aabb, std::vector<GLfloat>& v)
+    {
+        const int cubeIndices[] = {
+            // front
+            0, 1, 2,
+            2, 3, 0,
+            // top
+            3, 2, 6,
+            6, 7, 3,
+            // back
+            7, 6, 5,
+            5, 4, 7,
+            // bottom
+            4, 5, 1,
+            1, 0, 4,
+            // left
+            4, 0, 3,
+            3, 7, 4,
+            // right
+            1, 5, 6,
+            6, 2, 1,
+        };
+        
+        for (int i = 0; i < 36; ++i)
+        {
+            glm::vec3 corner = aabb.corner(cubeIndices[i]);
+            
+            v.push_back(corner.x);
+            v.push_back(corner.y);
+            v.push_back(corner.z);
+            
+            v.push_back(0.f);
+            v.push_back(0.f);
+            v.push_back(0.f);
+        }
+    }
+
 }

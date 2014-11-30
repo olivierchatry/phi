@@ -5,43 +5,6 @@
 
 namespace Game
 {
-    static void generateCube(Render::AABB& aabb, std::vector<float>& v)
-    {
-        GLushort cube_elements[] = {
-            // front
-            0, 1, 2,
-            2, 3, 0,
-            // top
-            3, 2, 6,
-            6, 7, 3,
-            // back
-            7, 6, 5,
-            5, 4, 7,
-            // bottom
-            4, 5, 1,
-            1, 0, 4,
-            // left
-            4, 0, 3,
-            3, 7, 4,
-            // right
-            1, 5, 6,
-            6, 2, 1,
-        };
-        
-		for (int i = 0; i < 36; ++i)
-		{
-			glm::vec3 corner = aabb.corner(cube_elements[i]);
-
-			v.push_back(corner.x);
-			v.push_back(corner.y);
-			v.push_back(corner.z);
-
-			v.push_back(0.f);
-			v.push_back(0.f);
-			v.push_back(0.f);
-		}
-    }
-    
     void Terrain::addChunk(Render::AABB& aabb, std::vector<float>& vs)
     {
         TerrainRenderable* chunk = new TerrainRenderable();
@@ -56,7 +19,17 @@ namespace Game
         mTerrainRenderables.push_back(chunk);
     }
     
-    void Terrain::destroy()
+    void Terrain::update(Update& update)
+    {
+        
+    }
+    
+    void Terrain::initialize(Initialize& initialize)
+    {
+        
+    }
+
+    void Terrain::destroy(Destroy& destroy)
     {
         for (auto chunk : mTerrainRenderables)
         {
@@ -83,6 +56,33 @@ namespace Game
         }
     }
     
+    void Terrain::render(RenderArg& render)
+    {
+        if (render.passElement == Engine::Solid)
+        {
+            Render::Material material;
+            material.MaterialAmbient = glm::vec4(0.2f);
+            material.MaterialDiffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            material.MaterialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            material.MaterialShininess = 64.f;
+            
+            mShader->bind();
+            mShader->setMaterial(material);
+            mShader->setLightDirection(render.sunDirection);
+            glm::mat4 model(1.f);
+            mShader->setMatrices(render.projection, render.view, model);
+            for (auto chunk : mTerrainRenderables)
+            {
+                Engine::VertexArray::Binder  bind1(chunk->vertexArray);
+            
+                glCullFace(GL_BACK);
+                glDrawArrays(GL_TRIANGLES, 0, chunk->count);
+            }
+        }
+        
+    }
+
+    
     void Terrain::generate(Render::AABB& aabb, GenerateArgument& argument)
     {
 		glm::vec3 delta = aabb.size() / argument.subDivision;
@@ -100,7 +100,7 @@ namespace Game
                 Render::AABB current;
                 current.min = glm::vec3(x, y, 0);
                 current.max = glm::vec3(x + delta.x, y + delta.y, z);
-                generateCube(current, vs);
+                Utils::GenerateCube(current, vs);
                 chunkAABB.add(aabb);
                 
                 if (vs.size() > 32000)

@@ -2,6 +2,18 @@
 
 namespace Engine
 {
+    enum PassFrame
+    {
+        Normal
+    };
+    
+    enum PassElement
+    {
+        Solid,
+        Transparent
+    };
+    
+    
     template <typename type>
     struct BinderTemplate {
     public:

@@ -7,12 +7,10 @@ namespace Render
     struct ShaderDirectionalPerPixelNoTex : public IShaderDirectionalLightNoTex
     {
         void create();
-        void bind();
         
-        
-        void    setMaterial(Material& material);
-        void    setLightDirection(glm::vec3& direction);
-        void    setCamera(Camera& camera);
+        void    setMaterial(Material& material) override;
+        void    setLightDirection(glm::vec3& direction) override;
+        void    setMatrices(glm::mat4& projection, glm::mat4& view, glm::mat4& model) override;
         
         int             mMatrixView;
         int             mMatrixNormal;

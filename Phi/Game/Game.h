@@ -22,17 +22,17 @@ namespace Game
         Game();
         
     public:
-        virtual void            initialize(Intialize& intialize) = 0;
+        virtual void            initialize(Initialize& initialize) = 0;
         virtual State::List     update(Update& update);
-        virtual void            destroy(Destroy& destroy) = 0;
-    
+        virtual void            destroy(Destroy& destroy);
+        virtual void            render(RenderArg& render);
     public:
         void addPart(int id, GamePart* part);
     
-    private:
+    protected:
         typedef std::map<int, GamePart*> GameParts;
         
-    private:
+    protected:
         GameParts   mGameParts;
         GamePart*   mCurrentGamePart;
     };

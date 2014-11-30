@@ -243,7 +243,7 @@ namespace Engine
 	void Texture::createFromBuffer(GLubyte* buffer, int width, int height, int type, int channels)
 	{
 		glGenTextures(1, &mId);
-		GLint internals;
+		GLint internals = 0;
 		
 		switch (channels)
 		{

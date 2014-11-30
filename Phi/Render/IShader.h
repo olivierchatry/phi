@@ -6,7 +6,10 @@
 namespace Render {
 	
 	struct IShader {
-        virtual void setCamera(Camera& camera) = 0;
+        virtual void setMatrices(glm::mat4& projection, glm::mat4& view, glm::mat4& model) = 0;
+        virtual void bind() { mShader.bind(); }
+
+        
         Engine::Shader mShader;
     };
 

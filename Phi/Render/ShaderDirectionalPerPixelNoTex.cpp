@@ -24,12 +24,7 @@ namespace Render
 		mLightDirection = mShader.getUniform("uni_LightDirection");
 		
 	}
-	
-	void ShaderDirectionalPerPixelNoTex::bind()
-	{
-		mShader.bind();
-	}
-	
+		
 	void  ShaderDirectionalPerPixelNoTex::setMaterial(Material& material)
 	{
 		mShader.setUniform(mMaterialShininess, material.MaterialShininess);
@@ -43,11 +38,11 @@ namespace Render
 		mShader.setUniform(mLightDirection, direction);
 	}
 	
-	void  ShaderDirectionalPerPixelNoTex::setCamera(Camera& camera)
+	void  ShaderDirectionalPerPixelNoTex::setMatrices(glm::mat4& projection, glm::mat4& view, glm::mat4& model)
 	{
-		mShader.setUniform(mMatrixView, camera.mView);
-		mShader.setUniform(mMatrixProjection, camera.mProjection);
-		glm::mat3 matrixNormal(1.f);
+		mShader.setUniform(mMatrixView, view);
+		mShader.setUniform(mMatrixProjection, projection);
+        glm::mat3 matrixNormal(glm::extractMatrixRotation(model));
 		mShader.setUniform(mMatrixNormal, matrixNormal);
 	}
 

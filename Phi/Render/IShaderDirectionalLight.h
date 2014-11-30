@@ -10,16 +10,15 @@ namespace Render
         glm::vec4       MaterialAmbient;
         glm::vec4       MaterialSpecular;
         float           MaterialShininess;
+        int             TextureDiffuse;
     };
     
     struct IShaderDirectionalLight : public IShaderPositionNormalUV {
         virtual void    setMaterial(Material& material) = 0;
-        virtual void    setLightDirection(glm::vec3& direction) = 0;        
+        virtual void    setLightDirection(glm::vec3& direction) = 0;
     };
 
     struct IShaderDirectionalLightNoTex : public IShaderPositionNormal {
-        
-        
         virtual void    setMaterial(Material& material) = 0;
         virtual void    setLightDirection(glm::vec3& direction) = 0;
     };

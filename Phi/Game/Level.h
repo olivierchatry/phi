@@ -4,13 +4,15 @@
 #include <Render/AABB.h>
 #include <Render/IShaderDirectionalLight.h>
 #include <Render/Camera.h>
+#include <Game/GameEntity.h>
 
 namespace Game {
-    class Level {
+    class Level : public GameEntity {
     public:
         Level();
+        
 	public:
-		struct GenerateArgument
+        struct GenerateArgument
 		{
 			GenerateArgument()
 			{
@@ -28,14 +30,21 @@ namespace Game {
 		};
 
     public:
-		void generate(Render::IShaderPositionNormalUV& shader, GenerateArgument& arguments);
-        void render();
-		void destroy();
+        void    update(Update& update) override;
+        void    initialize(Initialize& initialize) override;
+        void    render(RenderArg& render) override;
+        void    destroy(Destroy& destroy) override;
+
+        void    setShader(Render::IShaderDirectionalLight* shader);
+		void    generate(GenerateArgument& arguments);
 	
 	public:
 		void computeChunkDistanceToCamera(const glm::vec3& position, const glm::vec3& direction);
 		bool findNearestDelta(glm::vec3& position, float& deltaFound, int steps = 1);
 	public:
+        inline float smallestDelta() { return mSmallestDelta; }
+    
+    public:
 		glm::vec3 getPosition(float delta)
 		{
 			return get(delta, mTrack.points);
@@ -126,7 +135,9 @@ namespace Game {
         float                               mTotalLength;
 		Track								mGeneratedTrack;
         Render::AABB                        mLevelAABB;
-	public:
+        Render::IShaderDirectionalLight*    mShader;
+	
+    public:
 		static bool sortByDistance(TrackChunkRenderable* a, TrackChunkRenderable* b)
 		{
 			return a->distance > b->distance;

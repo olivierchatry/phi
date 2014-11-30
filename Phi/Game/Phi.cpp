@@ -6,51 +6,42 @@
 #include <Render/ShaderDirectionalPerPixel.h>
 #include <Render/ShaderDirectionalPerPixelNoTex.h>
 
-#include <Game/Level.h>
-#include <Game/Terrain.h>
+#include <Game/PhiTestGamePart.h>
+#include <Game/Phi.h>
 
-
-static void error_callback(int error, const char* description)
+namespace Game
 {
-    fputs(description, stderr);
-}
+    void        Phi::initialize(Initialize &initialize)
+    {
+        GamePart* part = new PhiTestGamePart();
+        part->initialize(initialize);
+        addPart(Test, part);
+        mCurrentGamePart = part;
+    }
+  
+    Game::State::List Phi::update(Update& update)
+    {
+        Game::update(update);
+        
+        return State::Continue;
+    }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-}
+    void        Phi::render(RenderArg& render)
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0, 0, 0, 0);
+        glEnable(GL_DEPTH_TEST);
 
-template <typename T>
-struct Smooth
-{
-	Smooth(size_t sampleCount)
-	{
-		values.resize(sampleCount, T(0));
-		total = (T)0.f;
-		ring = 0;
-	}
-
-	void add(T& v)
-	{
-		size_t i = (ring % values.size());
-		total += v - values[i];
-		values[i] = v;
-		ring++;
-	}
-
-	T	get()
-	{
-		return total / (T)(values.size());
-	}
-
-	std::vector<T>	values;
-	size_t			ring;
-	T				total;
+        render.passFrame = Engine::Normal;
+        render.passElement = Engine::Solid;
+        Game::render(render);
+        
+        render.passElement = Engine::Transparent;
+        Game::render(render);
+    }
 };
 
-
-
+/*
 int main(int argc, char* argv[])
 {
     GLFWwindow* window;
@@ -86,13 +77,16 @@ int main(int argc, char* argv[])
     Render::ShaderDirectionalPerPixel shaderDirectional;
     shaderDirectional.create();
     Render::ShaderDirectionalPerPixelNoTex shaderDirectionalNoTex;
+    shaderDirectional.create();
     shaderDirectionalNoTex.create();
     
     Game::Level level;
     {
         Game::Level::GenerateArgument arguments;
-        level.generate(shaderDirectional, arguments);
+        level.generate(arguments);
+        level.setShader(&shaderDirectional);
     }
+    
     Game::Terrain terrain;
     {
         Game::Terrain::GenerateArgument arguments;
@@ -102,27 +96,8 @@ int main(int argc, char* argv[])
         terrain.generate(aabb, arguments);
         terrain.setShader(&shaderDirectionalNoTex);
     }
+
     Camera camera;
-    
-    struct Player
-    {
-        glm::vec3	position;
-        glm::vec3	direction;		
-		
-		glm::vec3	sideBoostVelocity;
-		float		sideBoostForce;
-        
-		glm::vec3	gravityVelocity;
-        float		gravityForce;
-        
-		glm::vec3	gravity;
-		glm::vec3	normal;
-        glm::vec3	right;
-        
-		glm::vec3	boosterVelocity;
-		float		boosterForce;
-        
-    };
     
     Player player;
     
@@ -142,7 +117,7 @@ int main(int argc, char* argv[])
 	
     double time = glfwGetTime();
     float oldDeltaOnSpline = 0;
-	Smooth<glm::vec3> velocitySmoothed(10);
+
     double lapStartTime = glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
@@ -154,17 +129,16 @@ int main(int argc, char* argv[])
         
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        /*glClearColor(1, 0, 1, 0);*/
+        glClearColor(1, 0, 1, 0);
         glEnable(GL_DEPTH_TEST);
         
         double currentTime = glfwGetTime();
-        float deltaTime = (float)(currentTime - time);
+ double time = glfwGetTime();
+ 
+ float deltaTime = (float)(currentTime - time);
+        time = currentTime;
         
         
-        float malus = player.gravityForce / 12.f;
-        /*if (malus > 15.f)
-            player.boosterForce *= 0.98f;
-        malus = 0.f;*/
 
         player.boosterVelocity += player.direction *  (player.boosterForce - malus) * deltaTime;
 		player.boosterVelocity *= 0.98f;
@@ -333,3 +307,4 @@ int main(int argc, char* argv[])
     glfwTerminate();
     exit(EXIT_SUCCESS);
 }
+*/

@@ -3,10 +3,11 @@
 #include <Render/AABB.h>
 #include <Render/Engine.h>
 #include <Render/IShaderDirectionalLight.h>
+#include <Game/GameEntity.h>
 
 namespace Game
 {
-    struct Terrain
+    struct Terrain : public GameEntity
     {
     public:
         struct GenerateArgument
@@ -19,9 +20,13 @@ namespace Game
             float subDivision;
         };
     public:
+        void update(Update& update) override;
+        void initialize(Initialize& initialize) override;
+        void destroy(Destroy& destroy) override;
+        void    render(RenderArg& render) override;
+
         void generate(Render::AABB& aabb, GenerateArgument& argument);
         void setShader(Render::IShaderDirectionalLightNoTex* shader);
-        void destroy();
         
     protected:
         void addChunk(Render::AABB& aabb, std::vector<float>& vs);
@@ -36,8 +41,8 @@ namespace Game
         };
         
         
-        std::vector<TerrainRenderable*> mTerrainRenderables;
-        Render::IShaderDirectionalLightNoTex* mShader;
+        std::vector<TerrainRenderable*>     mTerrainRenderables;
+        Render::IShaderDirectionalLightNoTex*    mShader;
     };
 };
 
