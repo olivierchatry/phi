@@ -37,7 +37,7 @@ namespace Game {
         // get the nearest chunk.
         for (auto chunk : mTrackChunks)
         {
-            if (chunk->deltaStart <=  deltaEspilon && deltaEspilon <= chunk->deltaEnd)
+            if (chunk->deltaStart <  deltaEspilon && deltaEspilon < chunk->deltaEnd)
             {
                 float chunkDistance = chunk->aabb.distanceFrom(position);
                 if (distance > chunkDistance)
@@ -71,7 +71,7 @@ namespace Game {
             
             deltaStart = glm::max(0.f, delta - deltaDelta);
             deltaEnd = delta + deltaDelta;
-            deltaDelta = mSmallestDelta * 0.5f;
+            deltaDelta = deltaDelta * 0.5f;
         }
         
         return true;
@@ -194,14 +194,14 @@ namespace Game {
                 glm::vec3 right = glm::normalize(glm::cross(direction, up));
                 up = glm::normalize(glm::cross(right, direction));
                 
-                size_t s = i * (circleSize + 1);
+                size_t s = i * circleSize;
                 
                 float uDeltaRepeat = 5.f / (float)circleSize;
                 float u = 0;
                 
-                for (size_t a = 0; a <= circleSize; ++a)
+                for (size_t a = 0; a < circleSize; ++a)
                 {
-                    size_t actualAngle = a % circleSize;
+                    size_t actualAngle = a;
                     float radius = mGeneratedTrack.radius[actualCurrentPointInSpline];
                     glm::vec2& angle = angles[actualAngle];
                     glm::vec3 position = v1 + (right * angle.x * radius + up * angle.y * radius);
@@ -221,14 +221,14 @@ namespace Game {
                     
                     chunkAABB.add(position);
                     
-                    if (generateIndices && (actualAngle == a))
+                    if (generateIndices)
                     {
-                        size_t b = (a + 1);
+                        size_t b = (a + 1) % circleSize;
                         
                         unsigned short i1 = (unsigned short)(s + a);
-                        unsigned short i2 = (unsigned short)(i1 + circleSize + 1);
+                        unsigned short i2 = (unsigned short)(i1 + circleSize);
                         unsigned short i3 = (unsigned short)(s + b);
-                        unsigned short i4 = (unsigned short)(i3 + circleSize + 1);
+                        unsigned short i4 = (unsigned short)(i3 + circleSize);
                         
                         indices.push_back(i1);
                         indices.push_back(i2);
