@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     {
         {
             double time = glfwGetTime();
-            update.delta = (float)(previousTime - time);
+            update.delta = (float)(time - previousTime);
             game.update(update);
             previousTime = time;
         }
