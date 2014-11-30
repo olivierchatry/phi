@@ -7,21 +7,21 @@ namespace Utils
 	void GenerateNormals(GLfloat* vs, int stride, int count, int offsetVertex, int offsetNormal)
 	{
 
-		while (count--)
+		while (count)
 		{
 			glm::fvec3* v1 = (glm::fvec3*) (vs + offsetVertex);
 			glm::fvec3* v2 = (glm::fvec3*) (vs + stride + offsetVertex);
 			glm::fvec3* v3 = (glm::fvec3*) (vs + stride + stride + offsetVertex);
 
-			glm::fvec3 v21 = *v2 - *v1;
-			glm::fvec3 v31 = *v3 - *v1;
-			glm::fvec3 normal = glm::normalize(glm::cross(v21, v31));
+			
+			glm::fvec3 normal = glm::triangleNormal(*v1, *v2, *v3);
 
 			*((glm::fvec3*) (vs + offsetNormal)) = normal;
 			*((glm::fvec3*) (vs + stride + offsetNormal)) = normal;
 			*((glm::fvec3*) (vs + stride + stride + offsetNormal)) = normal;
 
 			vs += stride + stride + stride;
+			count -= 3;
 		}
 	}
 
@@ -30,14 +30,14 @@ namespace Utils
 		if (zeroNormalsBefore)
 		{
 			int         temp = count;
-            GLushort*	tempIndex = index;
+			GLushort*	tempIndex = index;
 
 			while (temp--)
-				*((glm::vec3*) (vs + *(tempIndex++) * stride + offsetNormal)) = glm::vec3(0);
+				*((glm::fvec3*) (vs + *(tempIndex++) * stride + offsetNormal)) = glm::vec3(0);
 		}
 		{
 			int         temp = count / 3;
-            GLushort*	tempIndex = index;
+			GLushort*	tempIndex = index;
 
 			while (temp--)
 			{
@@ -45,22 +45,20 @@ namespace Utils
 				int i2 = *(tempIndex++) * stride;
 				int i3 = *(tempIndex++) * stride;
 
-				glm::vec3* v1 = (glm::vec3*) (vs + i1 + offsetVertex);
-				glm::vec3* v2 = (glm::vec3*) (vs + i2 + offsetVertex);
-				glm::vec3* v3 = (glm::vec3*) (vs + i3 + offsetVertex);
+				glm::fvec3* v1 = (glm::fvec3*) (vs + i1 + offsetVertex);
+				glm::fvec3* v2 = (glm::fvec3*) (vs + i2 + offsetVertex);
+				glm::fvec3* v3 = (glm::fvec3*) (vs + i3 + offsetVertex);
 
-				glm::vec3 v21 = *v2 - *v1;
-				glm::vec3 v31 = *v3 - *v1;
-				glm::vec3 normal = glm::normalize(glm::cross(v21, v31));
+				glm::fvec3 normal = glm::triangleNormal(*v1, *v2, *v3);
 
-				*((glm::vec3*) (vs + i1 + offsetNormal)) += normal;
-				*((glm::vec3*) (vs + i2 + offsetNormal)) += normal;
-				*((glm::vec3*) (vs + i3 + offsetNormal)) += normal;
+				*((glm::fvec3*) (vs + i1 + offsetNormal)) += normal;
+				*((glm::fvec3*) (vs + i2 + offsetNormal)) += normal;
+				*((glm::fvec3*) (vs + i3 + offsetNormal)) += normal;
 			}
 		}
 		{
 			int			temp = count;
-            GLushort*	tempIndex = index;
+			GLushort*	tempIndex = index;
 
 			while (temp--)
 			{
@@ -117,42 +115,42 @@ namespace Utils
 		glm::vec3 top = (n2n3 * d1) + glm::cross(n1, (d3*n2) - (d2*n3));
 		return top / -denom;
 	}
-    
-    void GenerateCube(Render::AABB& aabb, std::vector<GLfloat>& v)
-    {
-        const int cubeIndices[] = {
-            // front
-            0, 1, 2,
-            2, 3, 0,
-            // top
-            3, 2, 6,
-            6, 7, 3,
-            // back
-            7, 6, 5,
-            5, 4, 7,
-            // bottom
-            4, 5, 1,
-            1, 0, 4,
-            // left
-            4, 0, 3,
-            3, 7, 4,
-            // right
-            1, 5, 6,
-            6, 2, 1,
-        };
-        
-        for (int i = 0; i < 36; ++i)
-        {
-            glm::vec3 corner = aabb.corner(cubeIndices[i]);
-            
-            v.push_back(corner.x);
-            v.push_back(corner.y);
-            v.push_back(corner.z);
-            
-            v.push_back(0.f);
-            v.push_back(0.f);
-            v.push_back(0.f);
-        }
-    }
+	
+	void GenerateCube(Render::AABB& aabb, std::vector<GLfloat>& v)
+	{
+		const int cubeIndices[] = {
+			// front
+			0, 1, 2,
+			2, 3, 0,
+			// top
+			3, 2, 6,
+			6, 7, 3,
+			// back
+			7, 6, 5,
+			5, 4, 7,
+			// bottom
+			4, 5, 1,
+			1, 0, 4,
+			// left
+			4, 0, 3,
+			3, 7, 4,
+			// right
+			1, 5, 6,
+			6, 2, 1,
+		};
+		
+		for (int i = 0; i < 36; ++i)
+		{
+			glm::vec3 corner = aabb.corner(cubeIndices[i]);
+			
+			v.push_back(corner.x);
+			v.push_back(corner.y);
+			v.push_back(corner.z);
+			
+			v.push_back(0.f);
+			v.push_back(0.f);
+			v.push_back(0.f);
+		}
+	}
 
 }

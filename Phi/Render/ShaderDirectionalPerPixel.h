@@ -23,7 +23,5 @@ namespace Render
         
         int             mLightDirection;
 		int				mTexture;
-
-        Engine::Shader	mShader;
     };
 };

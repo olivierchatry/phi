@@ -14,10 +14,10 @@ out vec4 vertexShader_Eye;
 out vec2 vertexShader_UV;
 
 void main(void) {
-    vec4 position = vec4(in_Position, 1);
-    vertexShader_Normal = normalize(uni_NormalMatrix * in_Normal);
-    vertexShader_EyeNormal = normalize(uni_ModelViewMatrix * vec4(in_Normal, 0.0)).xyz;
-    vertexShader_Eye = -(uni_ModelViewMatrix * position);
+	vec4 position = vec4(in_Position, 1);
+	vertexShader_Normal = normalize(uni_NormalMatrix * in_Normal);
+	vertexShader_EyeNormal = normalize(uni_ModelViewMatrix * vec4(in_Normal, 0.0)).xyz;
+	vertexShader_Eye = -(uni_ModelViewMatrix * position);
 	vertexShader_UV = in_UV;
-    gl_Position = uni_ProjectionMatrix * uni_ModelViewMatrix * position;
+	gl_Position = uni_ProjectionMatrix * uni_ModelViewMatrix * position;
 }

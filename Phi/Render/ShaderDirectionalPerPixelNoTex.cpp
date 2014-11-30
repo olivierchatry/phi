@@ -40,9 +40,10 @@ namespace Render
 	
 	void  ShaderDirectionalPerPixelNoTex::setMatrices(glm::mat4& projection, glm::mat4& view, glm::mat4& model)
 	{
-		mShader.setUniform(mMatrixView, view);
+		glm::mat4 modelView = view * model;
+		mShader.setUniform(mMatrixView, modelView);
 		mShader.setUniform(mMatrixProjection, projection);
-        glm::mat3 matrixNormal(glm::extractMatrixRotation(model));
+		glm::mat3 matrixNormal(glm::extractMatrixRotation(model));
 		mShader.setUniform(mMatrixNormal, matrixNormal);
 	}
 

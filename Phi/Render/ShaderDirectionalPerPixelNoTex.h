@@ -22,7 +22,5 @@ namespace Render
         int             mMaterialShininess;
         
         int             mLightDirection;
-
-        Engine::Shader	mShader;
     };
 };

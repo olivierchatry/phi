@@ -33,7 +33,7 @@ namespace Render
 		mShader.setUniform(mMaterialDiffuse, material.MaterialDiffuse);
 		mShader.setUniform(mMaterialSpecular, material.MaterialSpecular);
 		mShader.setUniform(mMaterialAmbient, material.MaterialAmbient);
-        mShader.setUniform(mTexture, material.TextureDiffuse);
+		mShader.setUniform(mTexture, material.TextureDiffuse);
 	}
 	
 	void  ShaderDirectionalPerPixel::setLightDirection(glm::vec3& direction)
@@ -43,9 +43,10 @@ namespace Render
 	
 	void  ShaderDirectionalPerPixel::setMatrices(glm::mat4& projection, glm::mat4& view, glm::mat4& model)
 	{
-		mShader.setUniform(mMatrixView, view);
+		glm::mat4 modelView = view * model;
+		mShader.setUniform(mMatrixView, modelView);
 		mShader.setUniform(mMatrixProjection, projection);
-        glm::mat3 matrixNormal(glm::extractMatrixRotation(model));
+		glm::mat3 matrixNormal(glm::extractMatrixRotation(model));
 		mShader.setUniform(mMatrixNormal, matrixNormal);
 		
 	}

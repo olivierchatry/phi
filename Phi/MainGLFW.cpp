@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     update.window = window;
     
     
-    float previousTime = glfwGetTime();
+    double previousTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(window))
     {
