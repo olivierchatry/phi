@@ -27,7 +27,7 @@ namespace Game
 
 		float arrowLen = 40.f;
 		aabb.reset();
-		aabb.add(glm::vec3(0, -1.f, -1.f));
+		aabb.add(glm::vec3(-arrowLen, -1.f, -1.f));
 		aabb.add(glm::vec3(arrowLen, 1.f, 1.f));
 
 		vs.clear();
@@ -40,7 +40,7 @@ namespace Game
 		mRenderableSide.color = glm::vec4(0.f, 1.f, 0.f, 1.f);
 
 		aabb.reset();
-		aabb.add(glm::vec3(-1.f, 0.f, -1.f));
+		aabb.add(glm::vec3(-1.f, -arrowLen, -1.f));
 		aabb.add(glm::vec3(1.f, arrowLen, 1.f));
 		vs.clear();
 		Utils::GenerateCube(aabb, vs);
@@ -52,7 +52,7 @@ namespace Game
 		mRenderableTop.color = glm::vec4(1.f, 0.f, 0.f, 1.f);
 
 		aabb.reset();
-		aabb.add(glm::vec3(-1.f, -1.f, 0.f));
+		aabb.add(glm::vec3(-1.f, -1.f, -arrowLen));
 		aabb.add(glm::vec3(1.f, 1.f, arrowLen));
 		vs.clear();
 		Utils::GenerateCube(aabb, vs);
