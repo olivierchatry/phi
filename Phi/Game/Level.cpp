@@ -37,7 +37,7 @@ namespace Game {
         // get the nearest chunk.
         for (auto chunk : mTrackChunks)
         {
-            if (chunk->deltaStart <  deltaEspilon && deltaEspilon < chunk->deltaEnd)
+            if (chunk->deltaStart <=  deltaEspilon && deltaEspilon <= chunk->deltaEnd)
             {
                 float chunkDistance = chunk->aabb.distanceFrom(position);
                 if (distance > chunkDistance)
@@ -62,7 +62,7 @@ namespace Game {
             for (float d = deltaStart; d < deltaEnd; d += deltaDelta)
             {
                 float length = glm::distance2(getPosition(d), position);
-                if (length < currentLength && d > delta)
+                if (length < currentLength && d >= delta)
                 {
                     currentLength = length;
                     delta = d;

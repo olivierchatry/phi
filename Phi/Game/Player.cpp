@@ -1,4 +1,4 @@
-#include <PreCompile.h>
+    #include <PreCompile.h>
 #include <Game/Level.h>
 #include <Game/Player.h>
 #include <Render/AABB.h>
@@ -28,9 +28,8 @@ namespace Game
 		mPhysic.position  = level->getPosition(0.f)
 		+ level->getNormal(0.f) * (level->getRadius(0.f) * 1.2f);
 		mPhysic.direction = level->getPosition(level->smallestDelta())
-		+ level->getNormal(level->smallestDelta()) * (level->getRadius(level->smallestDelta()) * 1.2f) - mPhysic.position;
+		+ level->getNormal(level->smallestDelta()) * (level->getRadius(level->smallestDelta()) * 2.f) - mPhysic.position;
 		
-		mPreviousDirection = mPhysic.direction;
 		mPhysic.sideBoostForce = 0.f;
 		mPhysic.sideBoostVelocity = glm::vec3(0.f);
 		
@@ -43,6 +42,7 @@ namespace Game
 		mPhysic.boosterForce = 0.f;
 
 		mPreviousDeltaOnSpline = 0.f;
+        mDirection = mPhysic.direction;
 	}
 	
 	void Player::destroy(Destroy &destroy)
@@ -83,7 +83,7 @@ namespace Game
 
 			Engine::VertexArray::Binder  bind1(mRenderable.vertexArray);
 			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
+			glCullFace(GL_BACK);
 			glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
 		}
 	}
@@ -97,24 +97,21 @@ namespace Game
 		float deltaTime = update.delta;
 		
 		mPhysic.boosterVelocity += mPhysic.direction *  (mPhysic.boosterForce) * deltaTime;
-		mPhysic.boosterVelocity *= 0.98f;
+		mPhysic.boosterVelocity *= 0.97f;
 		
 		mPhysic.sideBoostVelocity += mPhysic.right * mPhysic.sideBoostForce * deltaTime;
-		mPhysic.sideBoostVelocity *= 0.98f;
+		mPhysic.sideBoostVelocity *= 0.97f;
 		
 		mPhysic.gravityVelocity += mPhysic.gravity * mPhysic.gravityForce * deltaTime;
-		mPhysic.gravityVelocity *= 0.98f;
+		mPhysic.gravityVelocity *= 0.97f;
 		mPhysic.previousPosition = mPhysic.position;
 		
-		mPreviousPositionWithoutGravity = mPositionWithoutGravity;
-
-		mPositionWithoutGravity = mPositionWithoutGravity + (mPhysic.boosterVelocity + mPhysic.sideBoostVelocity) * deltaTime;
 		mPhysic.position = mPhysic.position + (mPhysic.boosterVelocity + mPhysic.sideBoostVelocity + mPhysic.gravityVelocity) * deltaTime;
-		float deltaOnSpline = mPreviousDeltaOnSpline;
 		
+        float deltaOnSpline = mPreviousDeltaOnSpline;
 		level->findNearestDelta(mPhysic.position, deltaOnSpline, 1);
-		float deltaDeltaOnSpline = deltaOnSpline - mPreviousDeltaOnSpline;
-		if (deltaOnSpline > 1.f)
+
+        if (deltaOnSpline > 1.f)
 		{
 			deltaOnSpline -= 1.f;
 			level->findNearestDelta(mPhysic.position, deltaOnSpline, 1);
@@ -126,16 +123,29 @@ namespace Game
 			// lapStartTime = lapTime;
 		}
 		
-		// time = currentTime;
-		mPreviousDeltaOnSpline = deltaOnSpline;
 		glm::vec3	pointOnSpline = level->getPosition(deltaOnSpline);
-		
-		mPhysic.direction = glm::normalize(mPhysic.direction + glm::normalize(level->getPosition(deltaOnSpline + level->mSmallestDelta * 2.f) - pointOnSpline));
+		if (mPreviousDeltaOnSpline != deltaOnSpline)
+            mPhysic.direction = glm::normalize(pointOnSpline - level->getPosition(mPreviousDeltaOnSpline));
+        
+        if ((deltaOnSpline - mPreviousDeltaOnSpline) > 0.f)
+            mDirection = glm::normalize(mPhysic.previousPosition - mPhysic.position);
+        /*else
+            mDirection = mPhysic.direction;*/
+        
+        //mDirection = mDirection;
+
+        mPreviousDeltaOnSpline = deltaOnSpline;
+
 		float radius = level->getRadius(deltaOnSpline);
-		
-		glm::vec3 vecToPoint = glm::normalize(mPhysic.position - pointOnSpline);
-		glm::vec3 collisionPoint	= vecToPoint * radius * 1.2f + pointOnSpline;
-		glm::vec3 hittingPoint		= vecToPoint * radius + pointOnSpline;
+		glm::vec3 vecToPoint = mPhysic.position - pointOnSpline;
+        float currentRadius = glm::length(vecToPoint);
+        vecToPoint = glm::normalize(vecToPoint);
+
+        printf("%f %f %f -> %f %f %f\n ", deltaOnSpline, currentRadius, radius, vecToPoint.x, vecToPoint.y, vecToPoint.z);
+        
+        glm::vec3 collisionPoint	= vecToPoint * radius * 1.2f + pointOnSpline;
+		glm::vec3 hittingPoint		= vecToPoint * radius * 1.1f + pointOnSpline;
+        
 		float distancePlayerToSpline = glm::distance(pointOnSpline, mPhysic.position);
 		float distanceTrackToSpline = glm::distance(pointOnSpline, hittingPoint);
 		
@@ -146,8 +156,9 @@ namespace Game
 			mPhysic.gravity = glm::vec3(0);
 		
 		mPhysic.gravityForce *= 12.f;
-		if (distanceTrackToSpline > distancePlayerToSpline)
-			mPhysic.position = hittingPoint;
+        
+		//if (distanceTrackToSpline > distancePlayerToSpline)
+		//	mPhysic.position = hittingPoint;
 		
 		mPhysic.normal = glm::normalize(vecToPoint);
 		mPhysic.right = glm::normalize(glm::cross(mPhysic.direction, mPhysic.normal));
@@ -164,18 +175,16 @@ namespace Game
 			mPhysic.sideBoostForce = mPhysic.boosterForce * 1.2f, stopForce = false;
 		if (stopForce)
 			mPhysic.sideBoostForce = 0.f;
-		float distance = glm::distance(mPreviousPositionWithoutGravity, mPositionWithoutGravity);
-	
-		if (distance > 0.001f)
-			mPreviousDirection = glm::normalize(glm::normalize(mPreviousPositionWithoutGravity - mPositionWithoutGravity));
-		
-		glm::vec3 right = glm::normalize(glm::cross(mPreviousDirection, mPhysic.normal));
-		glm::vec3 normal = glm::normalize(glm::cross(right, mPreviousDirection));
 
-		mMatrix = glm::colMajor4(glm::vec4(mPreviousDirection, 0.f),
+        // mPreviousDirection = mPhysic.direction;
+		
+		glm::vec3 right = glm::normalize(glm::cross(mPhysic.normal, mDirection));
+		glm::vec3 normal = glm::normalize(glm::cross(mDirection, right));
+
+		mMatrix = glm::colMajor4(glm::vec4(mDirection, 0.f),
 								 glm::vec4(right, 0.f),
 								 glm::vec4(normal,0.f),
 								 glm::vec4(mPhysic.position,1.f));
-		// mMatrix = glm::translate(mPhysic.position);
+		//mMatrix = glm::translate(pointOnSpline);
 	}
 };

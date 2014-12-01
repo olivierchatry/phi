@@ -49,10 +49,7 @@ namespace Game
 		
 
 	private:
-		glm::vec3		mPreviousPositionWithoutGravity;
-		glm::vec3		mPositionWithoutGravity;
-
-		glm::vec3		mPreviousDirection;
+		glm::vec3		mDirection;
 		Renderable      mRenderable;
 		Physic          mPhysic;
 		glm::mat4       mMatrix;
