@@ -67,11 +67,7 @@ int main(int argc, char* argv[])
             previousTime = time;
         }
         {
-            Game::RenderArg render;
-            render.projection = update.projection;
-            render.view = update.view;
-            render.from = update.from;
-            render.to = update.to;
+            Game::RenderArg render(update);
             game.render(render);
         }
         glfwSwapBuffers(window);

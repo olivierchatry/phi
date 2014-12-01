@@ -4,6 +4,7 @@
 #include <Game/Player.h>
 #include <Game/Terrain.h>
 #include <Game/CameraFPS.h>
+#include <Game/TrackControlPoint.h>
 
 namespace Game
 {
@@ -14,10 +15,11 @@ namespace Game
 
 		Level* level = new Level();
 		Terrain* terrain = new Terrain();
+		TrackControlPoint* trackElement = new TrackControlPoint();
 		{
 			initialize.level = level;
 			Level::GenerateArgument  arguments;
-			arguments.circleSubDivice = 40.f;
+			arguments.circleSubDivice = 10.f;
 			level->initialize(initialize);
 			level->generate(arguments);
 			level->setShader(&mShaderDirectional);
@@ -33,6 +35,11 @@ namespace Game
 			terrain->setShader(&mShaderDirectionalNoTex);
 			mEntities.push_back(terrain);
 
+		}
+		{
+			trackElement->initialize(initialize);
+			trackElement->setShader(&mShaderDirectionalNoTex);
+			mEntities.push_back(trackElement);
 		}
 		{
 			CameraFPS* camera = new CameraFPS();

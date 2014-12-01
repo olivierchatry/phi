@@ -32,47 +32,52 @@ namespace Game
 		glm::dvec2 delta = mPreviousMousePosition - currentMousePosition;
 		mPreviousMousePosition = currentMousePosition;
 		
-		if (glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_1))
+		if (glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_2))
 		{
-			horizontalAngle += mouseSpeed * update.delta * float(delta.x);
-			verticalAngle -= mouseSpeed * update.delta * float(delta.y);
+			mHorizontalAngle += mMouseSpeed * update.delta * float(delta.x);
+			mVerticalAngle -= mMouseSpeed * update.delta * float(delta.y);
 		}
 
-		glm::quat quaternion(glm::vec3(0.f, verticalAngle, horizontalAngle));
+		glm::quat quaternion(glm::vec3(0.f, mVerticalAngle, mHorizontalAngle));
 		glm::mat4 view = glm::toMat4(quaternion);
 
 		glm::vec3 direction(view[0]);
 		glm::vec3 up(view[2]);
 		glm::vec3 right(view[1]);
 		// Up vector : perpendicular to both direction and right
-		float actualSpeed = speed;
+		float actualSpeed = mSpeed;
 		if (glfwGetKey(update.window, GLFW_KEY_LEFT_SHIFT))
-			actualSpeed = speed * 10.f;
+			actualSpeed = mSpeed * 10.f;
 
 		if (glfwGetKey(update.window, GLFW_KEY_W) == GLFW_PRESS){
-			position += direction * update.delta * actualSpeed;
+			mPosition += direction * update.delta * actualSpeed;
 		}
 		// Move backward
 		if (glfwGetKey(update.window, GLFW_KEY_S) == GLFW_PRESS){
-			position -= direction * update.delta * actualSpeed;
+			mPosition -= direction * update.delta * actualSpeed;
 		}
 		// Strafe right
 		if (glfwGetKey(update.window, GLFW_KEY_A) == GLFW_PRESS){
-			position += right * update.delta * actualSpeed;
+			mPosition += right * update.delta * actualSpeed;
 		}
 		// Strafe left
 		if (glfwGetKey(update.window, GLFW_KEY_D) == GLFW_PRESS){
-			position -= right * update.delta * actualSpeed;
+			mPosition -= right * update.delta * actualSpeed;
 		}
 		
 		
         update.projection = glm::perspective(glm::quarter_pi<float>(), ratio, 0.1f, 100000.0f);
         
                
-		update.from = position;
-		update.to = position + direction;
+		update.from = mPosition;
+		update.to = mPosition + direction;
 
-		update.view = glm::lookAt(update.from, update.to, up);
+		update.view = glm::lookAt(update.from, update.to, up); 
+
+		update.unproject = glm::inverse(update.projection * update.view);
+		update.mouseDirection = glm::unProject(glm::vec3(currentMousePosition.x, currentMousePosition.y, 0.1001f), update.view, update.projection, glm::vec4(0, 0, width, height));
+		update.mouseDirection = glm::unProject(glm::vec3(currentMousePosition.x, currentMousePosition.y, 1000.f), update.view, update.projection, glm::vec4(0, 0, width, height)) - update.mouseDirection;
+		
     }
 
 	void CameraFPS::destroy(Destroy& destroy)

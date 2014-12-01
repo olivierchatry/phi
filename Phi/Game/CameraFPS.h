@@ -15,12 +15,11 @@ namespace Game
         void destroy(Destroy& destroy) override;
         void render(RenderArg& render) override;
     private:
-		glm::vec3 position = glm::vec3(0, 0, 5);
-		float horizontalAngle = 3.14f;
-		float verticalAngle = 0.0f;
-		float initialFoV = 45.0f;
-		float speed = 300.0f; // 3 units / second
-		float mouseSpeed = 0.08f;
+		glm::vec3 mPosition = glm::vec3(0, 0, 5);
+		float mHorizontalAngle = 3.14f;
+		float mVerticalAngle = 0.0f;
+		float mSpeed = 300.0f; // 3 units / second
+		float mMouseSpeed = 0.08f;
 		glm::dvec2 mPreviousMousePosition;
 		
     };
