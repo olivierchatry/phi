@@ -23,15 +23,19 @@ namespace Game
 			int									count;
 			Engine::VertexArray					vertexArray;
 			glm::vec4							color;
+            Render::AABB                        aabb;
+            glm::vec3                           direction;
 		};
 		
 
 	private:
-		Renderable      mRenderablePoint;
-		Renderable      mRenderableFront;
-		Renderable      mRenderableSide;
-		Renderable      mRenderableTop;
-		Render::IShaderDirectionalLightNoTex* mShader;
+		Renderable                              mRenderableHelper[4];
+        Render::IShaderDirectionalLightNoTex*   mShader;
+        Renderable*                             mSelected;
+        bool                                    mButtonWasPressed;
+        int                                     mSelectedTrackPoint;
+        glm::dvec2                              mPreviousMousePosition;
+
 	};
 };
 

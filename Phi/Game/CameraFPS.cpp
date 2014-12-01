@@ -75,8 +75,19 @@ namespace Game
 		update.view = glm::lookAt(update.from, update.to, up); 
 
 		update.unproject = glm::inverse(update.projection * update.view);
-		update.mouseDirection = glm::unProject(glm::vec3(currentMousePosition.x, currentMousePosition.y, 0.1001f), update.view, update.projection, glm::vec4(0, 0, width, height));
-		update.mouseDirection = glm::unProject(glm::vec3(currentMousePosition.x, currentMousePosition.y, 1000.f), update.view, update.projection, glm::vec4(0, 0, width, height)) - update.mouseDirection;
+
+        update.mouseProjectedPosition =
+            glm::unProject(glm::vec3(currentMousePosition.x, currentMousePosition.y, 0.1f),
+                           update.view,
+                           update.projection,
+                           glm::vec4(0, 0, width, height));
+        
+		update.mouseProjectedDirection =
+            glm::unProject(glm::vec3(currentMousePosition.x, currentMousePosition.y, 0.9f),
+                           update.view,
+                           update.projection,
+                           glm::vec4(0, 0, width, height));
+        update.mouseProjectedDirection = glm::normalize(update.mouseProjectedDirection - update.mouseProjectedPosition);
 		
     }
 

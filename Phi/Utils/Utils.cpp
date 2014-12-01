@@ -152,5 +152,80 @@ namespace Utils
 			v.push_back(0.f);
 		}
 	}
+    
+    bool RayIntersectBoundingBox(const glm::vec3& origin, const glm::vec3& dir, const Render::AABB& aabb)
+    {
+        float InT = -FLT_MAX;
+        float OutT=  FLT_MAX;    // INIT INTERVAL T-VAL ENDPTS TO -/+ "INFINITY"
+        float NewInT, NewOutT;     // STORAGE FOR NEW T VALUES;
+        // X-SLAB (PARALLEL PLANES PERPENDICULAR TO X-AXIS) INTERSECTION (Xaxis is Normal)
+        if (dir.x == 0)            // CHECK IF RAY IS PARALLEL TO THE SLAB PLANES
+        {
+            if ((origin.x < aabb.min.x) || (origin.x > aabb.max.x)) return false;
+        }
+        else
+        {
+            NewInT = (aabb.min.x-origin.x)/dir.x;  // CALC Tval ENTERING MIN PLANE
+            NewOutT = (aabb.max.x-origin.x)/dir.x; // CALC Tval ENTERING MAX PLANE
+            if (NewOutT>NewInT)
+            {
+                if (NewInT>InT) InT=NewInT;
+                if (NewOutT<OutT) OutT=NewOutT;
+            }
+            else
+            {
+                if (NewOutT>InT) InT=NewOutT;
+                if (NewInT<OutT) OutT=NewInT;
+            }
+            if (InT>OutT) return false;
+        }
+        
+        // Y-SLAB (PARALLEL PLANES PERPENDICULAR TO X-AXIS) INTERSECTION (Yaxis is Normal)
+        if (dir.y == 0)        // CHECK IF RAY IS PARALLEL TO THE SLAB PLANES
+        {
+            if ((origin.y < aabb.min.y) || (origin.y > aabb.max.y)) return false;
+        }
+        else
+        {
+            NewInT = (aabb.min.y-origin.y)/dir.y;  // CALC Tval ENTERING MIN PLANE
+            NewOutT = (aabb.max.y-origin.y)/dir.y; // CALC Tval ENTERING MAX PLANE
+            if (NewOutT>NewInT)
+            {
+                if (NewInT>InT) InT=NewInT;
+                if (NewOutT<OutT) OutT=NewOutT;
+            }
+            else
+            {
+                if (NewOutT>InT) InT=NewOutT;
+                if (NewInT<OutT) OutT=NewInT;
+            }
+            if (InT>OutT) return false;
+        }
+        
+        // Z-SLAB (PARALLEL PLANES PERPENDICULAR TO X-AXIS) INTERSECTION (Zaxis is Normal)
+        if (dir.z == 0)        // CHECK IF RAY IS PARALLEL TO THE SLAB PLANES
+        {
+            if ((origin.z < aabb.min.z) || (origin.z > aabb.max.z)) return false;
+        }
+        else
+        {
+            NewInT = (aabb.min.z-origin.z)/dir.z;  // CALC Tval ENTERING MIN PLANE
+            NewOutT = (aabb.max.z-origin.z)/dir.z; // CALC Tval ENTERING MAX PLANE
+            if (NewOutT>NewInT)
+            {
+                if (NewInT>InT) InT=NewInT;
+                if (NewOutT<OutT) OutT=NewOutT;
+            }
+            else
+            {
+                if (NewOutT>InT) InT=NewOutT;
+                if (NewInT<OutT) OutT=NewInT;
+            }
+            if (InT>OutT) return false;
+        }
+        
+        // CHECK IF INTERSECTIONS ARE "AT OR BEYOND" THE START OF THE RAY
+        return (InT >= 0 || OutT >= 0);
+    }
 
 }
