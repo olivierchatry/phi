@@ -118,14 +118,14 @@ namespace Game
 			return;
         Level* level = (Level*)update.level;
         bool pressed = glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_1);
-        mSelectedTrackPoint = 0;
 
         glm::dvec2 currentMousePosition;
         glfwGetCursorPos(update.window, &currentMousePosition.x, &currentMousePosition.y);
 
-        //if (pressed && !mButtonWasPressed)
+        if (pressed && !mButtonWasPressed)
         {
             mSelected = NULL;
+            mSelectedTrackPoint = 0;
             mPreviousMousePosition = currentMousePosition;
             int trackPoint = 0;
             for (auto& p : level->mTrack.points)
@@ -133,8 +133,9 @@ namespace Game
                 glm::mat4 matrix = glm::translate(p);
                 for (int i = 0; i < 4; ++i)
                 {
-                    Renderable& renderable = mRenderableHelper[i];
-                    Render::AABB aabb =  matrix * renderable.aabb;
+                    Renderable&     renderable = mRenderableHelper[i];
+                    Render::AABB    aabb =  matrix * renderable.aabb;
+                    
                     if (Utils::RayIntersectBoundingBox(update.mouseProjectedPosition, update.mouseProjectedDirection, aabb))
                     {
                         mSelected = &renderable;
@@ -144,11 +145,18 @@ namespace Game
                 trackPoint ++;
             }
         }
+        if (!pressed && mButtonWasPressed && mSelected)
+        {
+            Level::GenerateArgument arguments;
+            level->generate();
+            level->setShader(level->mShader);
+        }
         mButtonWasPressed = pressed;
         if (mButtonWasPressed && mSelected)
         {
-            glm::dvec2 delta = mPreviousMousePosition - currentMousePosition;
-            level->mTrack.points[mSelectedTrackPoint] += mSelected->direction * (float) glm::length(delta);
+            glm::dvec2 delta = (mPreviousMousePosition - currentMousePosition) * 5.;
+            level->mTrack.points[mSelectedTrackPoint] += mSelected->direction * (float) (-delta.x + delta.y);
         }
+        mPreviousMousePosition = currentMousePosition;
 	}
 };

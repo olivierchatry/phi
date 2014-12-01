@@ -15,7 +15,6 @@ namespace Game
 
 		Level* level = new Level();
 		Terrain* terrain = new Terrain();
-		TrackControlPoint* trackElement = new TrackControlPoint();
 		{
 			initialize.level = level;
 			Level::GenerateArgument  arguments;
@@ -39,9 +38,12 @@ namespace Game
         {
             CameraFPS* camera = new CameraFPS();
             camera->initialize(initialize);
+            camera->setShader(&mShaderDirectionalNoTex);
+
             mEntities.push_back(camera);
         }
 		{
+            TrackControlPoint* trackElement = new TrackControlPoint();
 			trackElement->initialize(initialize);
 			trackElement->setShader(&mShaderDirectionalNoTex);
 			mEntities.push_back(trackElement);

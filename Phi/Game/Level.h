@@ -37,6 +37,7 @@ namespace Game {
 
         void    setShader(Render::IShaderDirectionalLight* shader);
 		void    generate(GenerateArgument& arguments);
+        void    generate() { generate(mGenerationArguments); }
 	
 	public:
 		void computeChunkDistanceToCamera(const glm::vec3& position, const glm::vec3& direction);
