@@ -245,7 +245,6 @@ namespace Game {
             
             if (!indices.empty())
             {
-                
                 mLevelAABB.add(chunkAABB);
                 TrackChunkRenderable* chunk = new TrackChunkRenderable();
                 chunk->aabb = chunkAABB;

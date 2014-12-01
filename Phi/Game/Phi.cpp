@@ -7,16 +7,28 @@
 #include <Render/ShaderDirectionalPerPixelNoTex.h>
 
 #include <Game/PhiTestGamePart.h>
+#include <Game/PhiEditorGamePart.h>
 #include <Game/Phi.h>
 
 namespace Game
 {
     void        Phi::initialize(Initialize &initialize)
     {
-        GamePart* part = new PhiTestGamePart();
-        part->initialize(initialize);
-        addPart(Test, part);
-        mCurrentGamePart = part;
+		{
+/*
+			GamePart* part = new PhiTestGamePart();
+			part->initialize(initialize);
+			addPart(Test, part);
+*/
+		}
+
+		{
+			GamePart* part = new PhiEditorGamePart();
+			part->initialize(initialize);
+			addPart(Editor, part);
+			mCurrentGamePart = part;
+		}
+
     }
   
     Game::State::List Phi::update(Update& update)

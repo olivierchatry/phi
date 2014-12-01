@@ -8,7 +8,8 @@ namespace Game
     
     struct Initialize
     {
-        GameEntity* level;        
+        GameEntity* level; 
+		GLFWwindow* window;
     };
     
     struct Update

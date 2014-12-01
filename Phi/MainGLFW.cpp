@@ -49,6 +49,7 @@ int main(int argc, char* argv[])
 
     Game::Phi game;
     Game::Initialize args;
+	args.window = window;
     game.initialize(args);
 
     Game::Update update;
