@@ -5,7 +5,7 @@
 
 namespace Game
 {
-	void Terrain::addChunk(Render::AABB& aabb, std::vector<float>& vs)
+	void Terrain::addChunk(Math::AABB& aabb, std::vector<float>& vs)
 	{
 		TerrainRenderable* chunk = new TerrainRenderable();
 		Utils::GenerateNormals(&vs[0], 6, vs.size() / 6, 0, 3);
@@ -83,13 +83,13 @@ namespace Game
 	}
 
 	
-	void Terrain::generate(Render::AABB& aabb, GenerateArgument& argument)
+	void Terrain::generate(Math::AABB& aabb, GenerateArgument& argument)
 	{
 		glm::vec3 delta = aabb.size() / argument.subDivision;
 		
 		std::vector<float>      vs;
 		
-		Render::AABB chunkAABB;
+		Math::AABB chunkAABB;
 		chunkAABB.reset();
 		
 		for (float y = aabb.min.y; y < aabb.max.y; y += delta.y)
@@ -97,7 +97,7 @@ namespace Game
 			for (float x = aabb.min.x; x < aabb.max.x; x += delta.x)
 			{
 				float z = glm::linearRand(0.f, 1000.f);
-				Render::AABB current;
+				Math::AABB current;
 				current.min = glm::vec3(x, y, 0);
 				current.max = glm::vec3(x + delta.x, y + delta.y, z);
 				Utils::GenerateCube(current, vs);

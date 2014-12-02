@@ -28,6 +28,10 @@ namespace Game
 		glm::mat4       unproject;
         glm::vec3       mouseProjectedPosition;
 		glm::vec3       mouseProjectedDirection;
+
+		glm::vec3       centerProjectedPosition;
+		glm::vec3       centerProjectedDirection;
+
     };
     
     struct Destroy
@@ -46,6 +50,8 @@ namespace Game
 			unproject = update.unproject;
 			mouseProjectedPosition = update.mouseProjectedPosition;
             mouseProjectedDirection = update.mouseProjectedDirection;
+			centerProjectedPosition = update.centerProjectedPosition;
+			centerProjectedDirection = update.centerProjectedDirection;
 		}
 
         Engine::PassFrame   passFrame;
@@ -60,6 +66,9 @@ namespace Game
         glm::vec3       mouseProjectedPosition;
 		glm::vec3		mouseProjectedDirection;
 		
+		glm::vec3       centerProjectedPosition;
+		glm::vec3       centerProjectedDirection;
+
 		GameEntity*		level;
 
     };

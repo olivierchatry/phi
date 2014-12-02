@@ -137,7 +137,7 @@ namespace Engine
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logLength);
 		else
 			glGetProgramiv(id, GL_INFO_LOG_LENGTH, &logLength);
-		if (logLength > 0)
+		if (logLength > 1)
 		{
 			std::string log;
 			log.resize(logLength);

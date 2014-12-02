@@ -13,7 +13,7 @@ namespace Utils
 			glm::fvec3* v2 = (glm::fvec3*) (vs + stride + offsetVertex);
 			glm::fvec3* v3 = (glm::fvec3*) (vs + stride + stride + offsetVertex);
 
-			
+
 			glm::fvec3 normal = glm::triangleNormal(*v1, *v2, *v3);
 
 			*((glm::fvec3*) (vs + offsetNormal)) = normal;
@@ -78,7 +78,7 @@ namespace Utils
 				*(destination + destinationOffset + i) = *(source + sourceOffset + i);
 			}
 			destination += destinationStride;
-			source		+= sourceStride;
+			source += sourceStride;
 		}
 	}
 
@@ -115,8 +115,8 @@ namespace Utils
 		glm::vec3 top = (n2n3 * d1) + glm::cross(n1, (d3*n2) - (d2*n3));
 		return top / -denom;
 	}
-	
-	void GenerateCube(Render::AABB& aabb, std::vector<GLfloat>& v)
+
+	void GenerateCube(Math::AABB& aabb, std::vector<GLfloat>& v)
 	{
 		const int cubeIndices[] = {
 			// front
@@ -138,94 +138,83 @@ namespace Utils
 			1, 5, 6,
 			6, 2, 1,
 		};
-		
+
 		for (int i = 0; i < 36; ++i)
 		{
 			glm::vec3 corner = aabb.corner(cubeIndices[i]);
-			
+
 			v.push_back(corner.x);
 			v.push_back(corner.y);
 			v.push_back(corner.z);
-			
+
 			v.push_back(0.f);
 			v.push_back(0.f);
 			v.push_back(0.f);
 		}
 	}
-    
-    bool RayIntersectBoundingBox(const glm::vec3& origin, const glm::vec3& dir, const Render::AABB& aabb)
-    {
-        float InT = -FLT_MAX;
-        float OutT=  FLT_MAX;    // INIT INTERVAL T-VAL ENDPTS TO -/+ "INFINITY"
-        float NewInT, NewOutT;     // STORAGE FOR NEW T VALUES;
-        // X-SLAB (PARALLEL PLANES PERPENDICULAR TO X-AXIS) INTERSECTION (Xaxis is Normal)
-        if (dir.x == 0)            // CHECK IF RAY IS PARALLEL TO THE SLAB PLANES
-        {
-            if ((origin.x < aabb.min.x) || (origin.x > aabb.max.x)) return false;
-        }
-        else
-        {
-            NewInT = (aabb.min.x-origin.x)/dir.x;  // CALC Tval ENTERING MIN PLANE
-            NewOutT = (aabb.max.x-origin.x)/dir.x; // CALC Tval ENTERING MAX PLANE
-            if (NewOutT>NewInT)
-            {
-                if (NewInT>InT) InT=NewInT;
-                if (NewOutT<OutT) OutT=NewOutT;
-            }
-            else
-            {
-                if (NewOutT>InT) InT=NewOutT;
-                if (NewInT<OutT) OutT=NewInT;
-            }
-            if (InT>OutT) return false;
-        }
-        
-        // Y-SLAB (PARALLEL PLANES PERPENDICULAR TO X-AXIS) INTERSECTION (Yaxis is Normal)
-        if (dir.y == 0)        // CHECK IF RAY IS PARALLEL TO THE SLAB PLANES
-        {
-            if ((origin.y < aabb.min.y) || (origin.y > aabb.max.y)) return false;
-        }
-        else
-        {
-            NewInT = (aabb.min.y-origin.y)/dir.y;  // CALC Tval ENTERING MIN PLANE
-            NewOutT = (aabb.max.y-origin.y)/dir.y; // CALC Tval ENTERING MAX PLANE
-            if (NewOutT>NewInT)
-            {
-                if (NewInT>InT) InT=NewInT;
-                if (NewOutT<OutT) OutT=NewOutT;
-            }
-            else
-            {
-                if (NewOutT>InT) InT=NewOutT;
-                if (NewInT<OutT) OutT=NewInT;
-            }
-            if (InT>OutT) return false;
-        }
-        
-        // Z-SLAB (PARALLEL PLANES PERPENDICULAR TO X-AXIS) INTERSECTION (Zaxis is Normal)
-        if (dir.z == 0)        // CHECK IF RAY IS PARALLEL TO THE SLAB PLANES
-        {
-            if ((origin.z < aabb.min.z) || (origin.z > aabb.max.z)) return false;
-        }
-        else
-        {
-            NewInT = (aabb.min.z-origin.z)/dir.z;  // CALC Tval ENTERING MIN PLANE
-            NewOutT = (aabb.max.z-origin.z)/dir.z; // CALC Tval ENTERING MAX PLANE
-            if (NewOutT>NewInT)
-            {
-                if (NewInT>InT) InT=NewInT;
-                if (NewOutT<OutT) OutT=NewOutT;
-            }
-            else
-            {
-                if (NewOutT>InT) InT=NewOutT;
-                if (NewInT<OutT) OutT=NewInT;
-            }
-            if (InT>OutT) return false;
-        }
-        
-        // CHECK IF INTERSECTIONS ARE "AT OR BEYOND" THE START OF THE RAY
-        return (InT >= 0 || OutT >= 0);
-    }
+
+	bool RayIntersectBoundingBox(const glm::vec3& origin, const glm::vec3& dir, const Math::AABB& aabb, glm::vec3& result)
+	{
+		const int RIGHT = 0;
+		const int LEFT = 1;
+		const int MIDDLE = 2;
+
+		bool inside = true;
+		char quadrant[3];
+		register int i;
+		int whichPlane;
+		float maxT[3];
+		float candidatePlane[3];
+
+		/* Find candidate planes; this loop can be avoided if
+		rays cast all from the eye(assume perpsective view) */
+		for (i = 0; i < 3; i++)
+			if (origin[i] < aabb.min[i]) {
+				quadrant[i] = LEFT;
+				candidatePlane[i] = aabb.min[i];
+				inside = false;
+			}
+			else if (origin[i] > aabb.max[i]) {
+				quadrant[i] = RIGHT;
+				candidatePlane[i] = aabb.max[i];
+				inside = false;
+			}
+			else	{
+				quadrant[i] = MIDDLE;
+			}
+
+			/* Ray origin inside bounding box */
+			if (inside)	{
+				result = origin;
+				return true;
+			}
+
+
+			/* Calculate T distances to candidate planes */
+			for (i = 0; i < 3; i++)
+				if (quadrant[i] != MIDDLE && dir[i] != 0.)
+					maxT[i] = (candidatePlane[i] - origin[i]) / dir[i];
+				else
+					maxT[i] = -1.;
+
+			/* Get largest of the maxT's for final choice of intersection */
+			whichPlane = 0;
+			for (i = 1; i < 3; i++)
+				if (maxT[whichPlane] < maxT[i])
+					whichPlane = i;
+
+			/* Check final candidate actually inside box */
+			if (maxT[whichPlane] < 0.) return false;
+			for (i = 0; i < 3; i++)
+				if (whichPlane != i) {
+					result[i] = origin[i] + maxT[whichPlane] * dir[i];
+					if (result[i] < aabb.min[i] || result[i] > aabb.max[i])
+						return false;
+				}
+				else {
+					result[i] = candidatePlane[i];
+				}
+				return true;				/* ray hits box */
+	}
 
 }

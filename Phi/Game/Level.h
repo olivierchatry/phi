@@ -119,7 +119,7 @@ namespace Game {
 			Engine::IndexBuffer					indexBuffer;
 			int									count;
 			Engine::VertexArray					vertexArray;			
-			Render::AABB						aabb;
+			Math::AABB							aabb;
 			float								distance;
 			
 			float								deltaStart;
@@ -135,7 +135,7 @@ namespace Game {
 		float								mSmallestDelta;
         float                               mTotalLength;
 		Track								mGeneratedTrack;
-        Render::AABB                        mLevelAABB;
+		Math::AABB							mLevelAABB;
         Render::IShaderDirectionalLight*    mShader;
 	
     public:

@@ -27,7 +27,7 @@ namespace Game
 		{
 			Terrain::GenerateArgument arguments;
 			arguments.subDivision = 40.f;
-			Render::AABB aabb = level->mLevelAABB;
+			Math::AABB aabb = level->mLevelAABB;
 			aabb.expand(glm::vec3(2.f, 1.f, 0));
 			terrain->initialize(initialize);
 			terrain->generate(aabb, arguments);

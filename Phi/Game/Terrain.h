@@ -25,11 +25,11 @@ namespace Game
         void destroy(Destroy& destroy) override;
         void    render(RenderArg& render) override;
 
-        void generate(Render::AABB& aabb, GenerateArgument& argument);
+        void generate(Math::AABB& aabb, GenerateArgument& argument);
         void setShader(Render::IShaderDirectionalLightNoTex* shader);
         
     protected:
-        void addChunk(Render::AABB& aabb, std::vector<float>& vs);
+        void addChunk(Math::AABB& aabb, std::vector<float>& vs);
         
     public:
         struct TerrainRenderable
@@ -37,7 +37,7 @@ namespace Game
             Engine::VertexBuffer				vertexBuffer;
             int									count;
             Engine::VertexArray					vertexArray;
-            Render::AABB						aabb;
+            Math::AABB						aabb;
         };
         
         

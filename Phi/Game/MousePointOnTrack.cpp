@@ -9,7 +9,7 @@ namespace Game
 	
 	void MousePointOnTrack::initialize(Initialize &initialize)
 	{
-		Render::AABB aabb;
+		Math::AABB aabb;
 
 		aabb.reset();
 		aabb.add(glm::vec3(-1.5f, -1.f, 0.f));

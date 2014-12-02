@@ -9,7 +9,7 @@ namespace Game
 	void CameraFPS::initialize(Initialize& intialize)
     {
 		glfwGetCursorPos(intialize.window, &mPreviousMousePosition.x, &mPreviousMousePosition.y);
-        Render::AABB aabb;
+        Math::AABB aabb;
         
         aabb.reset();
         aabb.add(glm::vec3(-100.f));
@@ -122,8 +122,24 @@ namespace Game
                            update.view,
                            update.projection,
                            glm::vec4(0, 0, width, height));
-        
-        update.mouseProjectedDirection = glm::normalize(update.mouseProjectedDirection - update.mouseProjectedPosition);
+
+		update.mouseProjectedDirection = glm::normalize(update.mouseProjectedDirection - update.mouseProjectedPosition);
+
+		glm::vec3 center(width * 0.5, height * 0.5, 0.0f);
+		update.centerProjectedPosition =
+			glm::unProject(center,
+			update.view,
+			update.projection,
+			glm::vec4(0, 0, width, height));
+		
+		center.z = 0.99f;
+		update.centerProjectedDirection =
+			glm::unProject(center,
+			update.view,
+			update.projection,
+			glm::vec4(0, 0, width, height));
+
+		update.centerProjectedDirection = glm::normalize(update.centerProjectedDirection - update.centerProjectedPosition);
 		
     }
 
@@ -136,6 +152,7 @@ namespace Game
     {
         if (render.passElement == Engine::Solid)
         {
+/*
             Render::Material material;
             material.MaterialAmbient = glm::vec4(0.2f);
             material.MaterialDiffuse = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
@@ -153,6 +170,7 @@ namespace Game
             glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
             glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
+*/
         }
         
     }

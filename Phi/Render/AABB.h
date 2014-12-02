@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Render {
+namespace Math {
 
 	struct AABB 
 	{

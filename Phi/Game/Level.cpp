@@ -178,7 +178,7 @@ namespace Game {
             vs.reserve(trackChunkSize * (circleSize + 1) * 8);
             indices.reserve(trackChunkSize * circleSize * 6);
             
-            Render::AABB chunkAABB;
+            Math::AABB chunkAABB;
             chunkAABB.reset();
             float vDeltaRepeat = 0.2f / trackChunkSize;
             
