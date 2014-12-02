@@ -14,19 +14,26 @@ namespace Game
     
     struct Update
     {
-        float       delta;
-        GameEntity* level;
-        GameEntity* player;
+        float           delta;
+        GameEntity*     level;
+        GameEntity*     player;
 
-        GLFWwindow* window;
+        GLFWwindow*     window;
         
-        glm::mat4    projection;
-        glm::mat4    view;
-        glm::vec3    from;
-        glm::vec3    to;
+        glm::mat4       projection;
+        glm::mat4       view;
+        glm::vec3       from;
+        glm::vec3       to;
 
-		glm::mat4	 unproject;
-		glm::vec3		mouseDirection;
+		glm::mat4       unproject;
+        glm::vec3       mouseProjectedPosition;
+		glm::vec3       mouseProjectedDirection;
+
+		glm::vec3       centerProjectedPosition;
+		glm::vec3       centerProjectedDirection;
+
+		bool			mouseTaken;
+
     };
     
     struct Destroy
@@ -43,7 +50,10 @@ namespace Game
 			to = update.to;
 			level = update.level;
 			unproject = update.unproject;
-			mouseDirection = update.mouseDirection;
+			mouseProjectedPosition = update.mouseProjectedPosition;
+            mouseProjectedDirection = update.mouseProjectedDirection;
+			centerProjectedPosition = update.centerProjectedPosition;
+			centerProjectedDirection = update.centerProjectedDirection;
 		}
 
         Engine::PassFrame   passFrame;
@@ -55,8 +65,12 @@ namespace Game
 		glm::mat4		unproject;
         glm::vec3		from;
         glm::vec3		to;
-		glm::vec3		mouseDirection;
+        glm::vec3       mouseProjectedPosition;
+		glm::vec3		mouseProjectedDirection;
 		
+		glm::vec3       centerProjectedPosition;
+		glm::vec3       centerProjectedDirection;
+
 		GameEntity*		level;
 
     };

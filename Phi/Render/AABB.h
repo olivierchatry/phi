@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Render {
+namespace Math {
 
 	struct AABB 
 	{
@@ -122,5 +122,13 @@ namespace Render {
 		glm::vec3 min;
 		glm::vec3 max;
 	};
+
+    inline AABB operator * (glm::mat4& mat, AABB& source)
+    {
+        AABB result;
+        result.min = glm::vec3(mat * glm::vec4(source.min, 1.f));
+        result.max = glm::vec3(mat * glm::vec4(source.max, 1.f));
+        return result;
+    }
 
 }

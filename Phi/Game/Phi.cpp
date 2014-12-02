@@ -15,13 +15,21 @@ namespace Game
     void        Phi::initialize(Initialize &initialize)
     {
 		{
+<<<<<<< HEAD
+=======
+
+>>>>>>> editor
 			GamePart* part = new PhiTestGamePart();
 			part->initialize(initialize);
 			addPart(Test, part);
             mCurrentGamePart = part;
 		}
 
+<<<<<<< HEAD
 /*		{
+=======
+		/*{
+>>>>>>> editor
 			GamePart* part = new PhiEditorGamePart();
 			part->initialize(initialize);
 			addPart(Editor, part);
@@ -102,7 +110,7 @@ int main(int argc, char* argv[])
     {
         Game::Terrain::GenerateArgument arguments;
         arguments.subDivision = 20.f;
-		Render::AABB aabb = level.mLevelAABB;
+		Math::AABB aabb = level.mLevelAABB;
 		aabb.expand(glm::vec3(1, 1, 0));
         terrain.generate(aabb, arguments);
         terrain.setShader(&shaderDirectionalNoTex);

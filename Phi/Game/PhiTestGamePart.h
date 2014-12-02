@@ -21,6 +21,7 @@ namespace Game
         GameEntities mEntities;
         Render::ShaderDirectionalPerPixel       mShaderDirectional;
         Render::ShaderDirectionalPerPixelNoTex  mShaderDirectionalNoTex;
-        
+        GameEntities mEditor;
+        GameEntities mGame;
     };
 }

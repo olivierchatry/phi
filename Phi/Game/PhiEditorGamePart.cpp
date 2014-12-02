@@ -5,6 +5,7 @@
 #include <Game/Terrain.h>
 #include <Game/CameraFPS.h>
 #include <Game/TrackControlPoint.h>
+#include <Game/MousePointOnTrack.h>
 
 namespace Game
 {
@@ -15,7 +16,6 @@ namespace Game
 
 		Level* level = new Level();
 		Terrain* terrain = new Terrain();
-		TrackControlPoint* trackElement = new TrackControlPoint();
 		{
 			initialize.level = level;
 			Level::GenerateArgument  arguments;
@@ -28,7 +28,7 @@ namespace Game
 		{
 			Terrain::GenerateArgument arguments;
 			arguments.subDivision = 40.f;
-			Render::AABB aabb = level->mLevelAABB;
+			Math::AABB aabb = level->mLevelAABB;
 			aabb.expand(glm::vec3(2.f, 1.f, 0));
 			terrain->initialize(initialize);
 			terrain->generate(aabb, arguments);
@@ -36,16 +36,20 @@ namespace Game
 			mEntities.push_back(terrain);
 
 		}
+        {
+            CameraFPS* camera = new CameraFPS();
+            camera->initialize(initialize);
+            camera->setShader(&mShaderDirectionalNoTex);
+
+            mEntities.push_back(camera);
+        }
 		{
+            TrackControlPoint* trackElement = new TrackControlPoint();
 			trackElement->initialize(initialize);
 			trackElement->setShader(&mShaderDirectionalNoTex);
 			mEntities.push_back(trackElement);
 		}
-		{
-			CameraFPS* camera = new CameraFPS();
-			camera->initialize(initialize);
-			mEntities.push_back(camera);
-		}
+
 	}
 
 	int     PhiEditorGamePart::update(Update& update)

@@ -37,10 +37,14 @@ namespace Game {
 
         void    setShader(Render::IShaderDirectionalLight* shader);
 		void    generate(GenerateArgument& arguments);
+        void    generate() { generate(mGenerationArguments); }
 	
 	public:
 		void computeChunkDistanceToCamera(const glm::vec3& position, const glm::vec3& direction);
-		bool findNearestDelta(glm::vec3& position, float& deltaFound, int steps = 1);
+		bool findNearestDelta(glm::vec3& position, float& deltaFound, int steps = 1);		
+		void addControlPoint(int id, float delta, glm::vec3& position, float radius);
+		/*bool findNearestDelta(glm::vec3& position, float& deltaFound, int steps = 1, TrackChunkRenderable&* chunk);*/
+	
 	public:
         inline float smallestDelta() { return mSmallestDelta; }
     
@@ -66,8 +70,14 @@ namespace Game {
 			return glm::normalize(glm::cross(right, direction));
 		}
 
+		template <typename T>
+		T get(float delta, std::vector<T>& points)
+		{
+			int id = 0;
+			return get(delta, points, id);
+		}
 		template <typename T>        
-        T get(float delta, std::vector<T>& points)
+        T get(float delta, std::vector<T>& points, int& id)
 		{
 			int size = (int)points.size();
 			int p0, p1, rp0, rp1;
@@ -78,6 +88,7 @@ namespace Game {
 			float t1 = glm::clamp((float)(pathpos - floor(pathpos)), 0.0f, 1.0f);
 			float t2 = t1 * t1;
 			float t3 = t1 * t2;
+
 
 			p0 = (int)glm::floor(pathpos) % size;
 			p1 = (p0 + 1) % size;
@@ -94,7 +105,7 @@ namespace Game {
 			r0 = (points[p1] - points[rp0]) * 0.5f;
 			r1 = (points[rp1] - points[p0]) * 0.5f;
 
-
+			id = p1;
 			tmp0 = points[p0] * bernstein.x;
 			tmp1 = points[p1] * bernstein.y;
 
@@ -109,6 +120,7 @@ namespace Game {
 		{
 			std::vector<glm::vec3>  points;
 			std::vector<float>		radius;
+			std::vector<int>		ids;
 			
 		};
 
@@ -118,13 +130,15 @@ namespace Game {
 			Engine::IndexBuffer					indexBuffer;
 			int									count;
 			Engine::VertexArray					vertexArray;			
-			Render::AABB						aabb;
+			Math::AABB							aabb;
 			float								distance;
 			
 			float								deltaStart;
 			float								deltaEnd;
             
             int                                 id;
+
+			int									controlPoint;
 		};
 
 		GenerateArgument					mGenerationArguments;
@@ -134,7 +148,7 @@ namespace Game {
 		float								mSmallestDelta;
         float                               mTotalLength;
 		Track								mGeneratedTrack;
-        Render::AABB                        mLevelAABB;
+		Math::AABB							mLevelAABB;
         Render::IShaderDirectionalLight*    mShader;
 	
     public:

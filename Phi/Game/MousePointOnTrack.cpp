@@ -9,12 +9,13 @@ namespace Game
 	
 	void MousePointOnTrack::initialize(Initialize &initialize)
 	{
-		Render::AABB aabb;
+		Math::AABB aabb;
 
 		aabb.reset();
-		aabb.add(glm::vec3(-1.5f, -1.f, 0.f));
-		aabb.add(glm::vec3(1.f, 1.f, 1.f));
+		aabb.add(glm::vec3(-1.f));
+		aabb.add(glm::vec3(1.f));
 		
+		aabb.expand(glm::vec3(10.f));
 		std::vector<float> vs;
 		
 		Utils::GenerateCube(aabb, vs);
@@ -23,27 +24,10 @@ namespace Game
 		mRenderable.vertexBuffer.create(GL_STATIC_DRAW, vs.size() * sizeof(float));
 		mRenderable.vertexBuffer.update(&vs[0], 0, vs.size() * sizeof(float));
 		mRenderable.count = vs.size() / 6;
-		Level* level = (Level*) initialize.level;
-		
-		mPhysic.position  = level->getPosition(0.f)
-		+ level->getNormal(0.f) * (level->getRadius(0.f) * 1.2f);
-		mPhysic.direction = level->getPosition(level->smallestDelta())
-		+ level->getNormal(level->smallestDelta()) * (level->getRadius(level->smallestDelta()) * 2.f) - mPhysic.position;
-		
-		mPhysic.sideBoostForce = 0.f;
-		mPhysic.sideBoostVelocity = glm::vec3(0.f);
-		
-		mPhysic.gravityForce = 0.f;
-		mPhysic.gravityVelocity = glm::vec3(0.f);
-		
-		mPhysic.normal = glm::vec3(0.f, 0.f, 1.f);
-		
-		mPhysic.boosterVelocity = glm::vec3(0.f);
-		mPhysic.boosterForce = 0.f;
-
-		mPreviousDeltaOnSpline = 0.f;
-        mDirection = mPhysic.direction;
+		Level* level = (Level*) initialize.level;	
+		mWasPressed = false;
 	}
+
 	
 	void MousePointOnTrack::destroy(Destroy &destroy)
 	{
@@ -67,11 +51,11 @@ namespace Game
 	
 	void MousePointOnTrack::render(RenderArg &render)
 	{
-		if (render.passElement == Engine::Solid)
+		if (render.passElement == Engine::Solid && mHavePosition)
 		{
 			Render::Material material;
 			material.MaterialAmbient = glm::vec4(0.2f);
-			material.MaterialDiffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			material.MaterialDiffuse = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
 			material.MaterialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 			material.MaterialShininess = 64.f;
 			
@@ -79,12 +63,33 @@ namespace Game
 			mShader->setMaterial(material);
 			mShader->setLightDirection(render.sunDirection);
 
-			mShader->setMatrices(render.projection, render.view, mMatrix);
-
 			Engine::VertexArray::Binder  bind1(mRenderable.vertexArray);
+			glm::mat4 matrix = glm::translate(mPositionOnSpline);
+			mShader->setMatrices(render.projection, render.view, matrix);
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
 			glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
+
+			matrix = glm::translate(mPositionOnBox);
+			mShader->setMatrices(render.projection, render.view, matrix);
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+			glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
+			material.MaterialDiffuse = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+			mShader->setMaterial(material);
+
+			matrix = glm::translate(mDeltaStart);
+			mShader->setMatrices(render.projection, render.view, matrix);
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+			glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
+			matrix = glm::translate(mDeltaEnd);
+			mShader->setMatrices(render.projection, render.view, matrix);
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+			glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
+
+
 		}
 	}
 	
@@ -92,7 +97,51 @@ namespace Game
 	{
 		if (update.level == NULL)
 			return;
+				
 		Level* level = (Level*) update.level;
+		float currentLength = std::numeric_limits<float>::max();
+
+		Level::TrackChunkRenderable* chunk = NULL;
+		for (auto& p : level->mTrackChunks)
+		{
+
+			glm::vec3 collision;
+			if (Utils::RayIntersectBoundingBox(update.mouseProjectedPosition, update.mouseProjectedDirection, p->aabb, collision))
+			{
+				float length = glm::distance2(collision, update.mouseProjectedPosition);
+				if (length < currentLength)
+				{
+					chunk = p;
+					currentLength = length;
+					mPositionOnBox = collision;
+				}
+			}
+		}
+		mHavePosition = false;
+		bool pressed = glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
+		
+		if (chunk && !update.mouseTaken)
+		{
+			mDeltaStart = level->mTrack.points[chunk->id];
+			mDeltaEnd = level->getPosition(chunk->deltaEnd);
+			float delta = chunk->deltaStart;
+			mHavePosition = level->findNearestDelta(mPositionOnBox, delta, 1);
+			float radius = 0.f;
+			if (mHavePosition)
+			{
+				mPositionOnSpline = level->getPosition(delta);
+				radius = level->getRadius(delta);
+			}
+			
+			if (mWasPressed && !pressed)
+			{
+				level->addControlPoint(chunk->id, delta, mPositionOnSpline, radius);
+				level->generate();
+				level->setShader(level->mShader);
+			}
+		}
+
+		mWasPressed = pressed;
 		//mMatrix = glm::translate(pointOnSpline);
 	}
 };

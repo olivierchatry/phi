@@ -21,6 +21,31 @@ namespace Game {
     
     void Level::initialize(Initialize& initialize)
     {
+        //////////////////////////////////////////////////////////////////////////
+        // generate crappy texture for testing.
+        //////////////////////////////////////////////////////////////////////////
+        std::vector<GLubyte> texture;
+        texture.resize(32 * 32 * 4);
+        
+        for (int y = 0; y < 32; ++y)
+        {
+            for (int x = 0; x < 32; ++x)
+            {
+                int offset = (y * 32 + x) * 4;
+                texture[offset + 0] = 255;
+                texture[offset + 1] = 255;
+                texture[offset + 2] = 255;
+                texture[offset + 3] = (y > 4) && (y < 28) ? 32 : 255;
+            }
+        }
+        mTexture.destroy();
+        mTexture.createFromBuffer(&(texture[0]), 32, 32, GL_TEXTURE_2D, 4);
+        mTexture.bind(0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
     }
     
     void Level::update(Update& update)
@@ -28,7 +53,20 @@ namespace Game {
         update.level = this;
     }
     
-    bool Level::findNearestDelta(glm::vec3& position, float& delta, int steps)
+	void Level::addControlPoint(int id, float delta, glm::vec3& position, float radius)
+	{
+		{
+			auto it = mTrack.points.begin() + id;
+			mTrack.points.insert(it, position);
+		}
+		{
+			auto it = mTrack.radius.begin() + id;
+			mTrack.radius.insert(it, radius);
+		}
+		
+	}
+
+	bool Level::findNearestDelta(glm::vec3& position, float& delta, int steps/*, TrackChunkRenderable&* chunkResult*/)
     {
         float distance = std::numeric_limits<float>::max();
         
@@ -39,7 +77,7 @@ namespace Game {
         {
             if (chunk->deltaStart <=  deltaEspilon && deltaEspilon <= chunk->deltaEnd)
             {
-                float chunkDistance = chunk->aabb.distanceFrom(position);
+                float chunkDistance = glm::distance(chunk->aabb.center(), position);
                 if (distance > chunkDistance)
                 {
                     distance = chunkDistance;
@@ -79,29 +117,7 @@ namespace Game {
     
     void Level::generate(GenerateArgument& arguments)
     {
-        //////////////////////////////////////////////////////////////////////////
-        // generate crappy texture for testing.
-        //////////////////////////////////////////////////////////////////////////
-        std::vector<GLubyte> texture;
-        texture.resize(32 * 32 * 4);
-        
-        for (int y = 0; y < 32; ++y)
-        {
-            for (int x = 0; x < 32; ++x)
-            {
-                int offset = (y * 32 + x) * 4;
-                texture[offset + 0] = 255;
-                texture[offset + 1] = 255;
-                texture[offset + 2] = 255;
-                texture[offset + 3] = (y > 4) && (y < 28) ? 32 : 255;
-            }
-        }
-        mTexture.createFromBuffer(&(texture[0]), 32, 32, GL_TEXTURE_2D, 4);
-        mTexture.bind(0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        mGenerationArguments = arguments;
         //////////////////////////////////////////////////////////////////////////
         // compute total len of the track, in meters.
         //////////////////////////////////////////////////////////////////////////
@@ -126,13 +142,18 @@ namespace Game {
         float current = 0;
         
         size_t genratedPointCount = (size_t) glm::ceil( (1 / mSmallestDelta)  );
+        mGeneratedTrack.points.clear();
+        mGeneratedTrack.radius.clear();
         mGeneratedTrack.points.reserve(genratedPointCount);
         mGeneratedTrack.radius.reserve(genratedPointCount);
+		mGeneratedTrack.ids.reserve(genratedPointCount);
         
         while (current < 1)
         {
-            mGeneratedTrack.points.push_back(get<glm::vec3>(current, mTrack.points));
+			int id;
+            mGeneratedTrack.points.push_back(get<glm::vec3>(current, mTrack.points, id));
             mGeneratedTrack.radius.push_back(get<float>(current, mTrack.radius));
+			mGeneratedTrack.ids.push_back(id);
             current += mSmallestDelta;
         }
         
@@ -160,6 +181,7 @@ namespace Game {
         size_t					trackChunkSize  = (mGeneratedTrack.points.size() / trackChunkCount) * 2;
         size_t					currentPointInSpline = 0;
         
+        mTrackChunks.clear();
         mTrackChunks.reserve(trackChunkCount);
         
         float v = 0;
@@ -172,7 +194,7 @@ namespace Game {
             vs.reserve(trackChunkSize * (circleSize + 1) * 8);
             indices.reserve(trackChunkSize * circleSize * 6);
             
-            Render::AABB chunkAABB;
+            Math::AABB chunkAABB;
             chunkAABB.reset();
             float vDeltaRepeat = 0.2f / trackChunkSize;
             
@@ -242,7 +264,6 @@ namespace Game {
                 v += vDeltaRepeat;
                 currentPointInSpline++;
             }
-            
             if (!indices.empty())
             {
                 mLevelAABB.add(chunkAABB);
@@ -252,16 +273,19 @@ namespace Game {
                 chunk->id = mTrackChunks.size();
                 Utils::GenerateNormals(&indices[0], &vs[0], 8, chunk->count, 0, 3, false);
                 
+				chunk->id = mGeneratedTrack.ids[chunkStartPointInSpline];
                 chunk->deltaStart = (chunkStartPointInSpline) * mSmallestDelta;
                 chunk->deltaEnd = (currentPointInSpline) * mSmallestDelta;
                 if (chunk->deltaStart < 0)
                     chunk->deltaStart = 0;
                 
-                
+                chunk->indexBuffer.destroy();
                 chunk->indexBuffer.create(GL_STATIC_DRAW, indices.size() * sizeof(unsigned short));
                 chunk->indexBuffer.update(&indices[0], 0, indices.size() * sizeof(unsigned short));
+                chunk->vertexBuffer.destroy();
                 chunk->vertexBuffer.create(GL_STATIC_DRAW, vs.size() * sizeof(float));
                 chunk->vertexBuffer.update(&vs[0], 0, vs.size() * sizeof(float));
+                chunk->vertexArray.destroy();
                 chunk->vertexArray.create();
                 
                 mTrackChunks.push_back(chunk);

@@ -50,7 +50,7 @@ project "Phi"
 	configuration "macosx"
 		pchheader "../Phi/PreCompile.h"
 		libdirs "Externals/glfw/lib/osx"
-		links       { "glfw3", "OpenGL.framework", "CoreFoundation.framework", "Cocoa.framework", "IOKit.framework", "AGL.framework"}
+		links       { "glfw3", "OpenGL.framework", "CoreFoundation.framework", "CoreVideo.framework", "Cocoa.framework", "IOKit.framework", "AGL.framework"}
 	configuration "linux"
 		buildoptions { "-std=c++11" }
 		linkoptions  { "-std=c++11" }

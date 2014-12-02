@@ -55,7 +55,6 @@ int main(int argc, char* argv[])
     Game::Update update;
     update.window = window;
     
-    
     double previousTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(window))

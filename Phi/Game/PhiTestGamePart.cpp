@@ -4,6 +4,9 @@
 #include <Game/Player.h>
 #include <Game/Terrain.h>
 #include <Game/CameraFollowPlayer.h>
+#include <Game/CameraFPS.h>
+#include <Game/TrackControlPoint.h>
+#include <Game/MousePointOnTrack.h>
 
 namespace Game
 {
@@ -26,7 +29,7 @@ namespace Game
 		{
 			Terrain::GenerateArgument arguments;
 			arguments.subDivision = 40.f;
-			Render::AABB aabb = level->mLevelAABB;
+			Math::AABB aabb = level->mLevelAABB;
 			aabb.expand(glm::vec3(2.f, 1.f, 0));
 			terrain->initialize(initialize);
 			terrain->generate(aabb, arguments);
@@ -34,6 +37,7 @@ namespace Game
 			mEntities.push_back(terrain);
 
 		}
+        
 		{
 			Player* player = new Player();
 			player->initialize(initialize);
@@ -44,17 +48,60 @@ namespace Game
 			CameraFollowPlayer* camera = new CameraFollowPlayer();
 			camera->initialize(initialize);
 			mEntities.push_back(camera);
+            mGame.push_back(camera);
+        }
+        {
+            CameraFPS* cameraFps = new CameraFPS();
+            cameraFps->initialize(initialize);
+            cameraFps->setShader(&mShaderDirectionalNoTex);
+            
+            mEntities.push_back(cameraFps);
+            mEditor.push_back(cameraFps);
+            cameraFps->setActive(false);
+        }
+        {
+			MousePointOnTrack* mousePointOnTrack = new MousePointOnTrack();
+			mousePointOnTrack->initialize(initialize);
+			mousePointOnTrack->setShader(&mShaderDirectionalNoTex);
+			mEntities.push_back(mousePointOnTrack);
+			mEditor.push_back(mousePointOnTrack);
+			mousePointOnTrack->setActive(false);
+        }
+
+		{
+			TrackControlPoint* trackElement = new TrackControlPoint();
+			trackElement->initialize(initialize);
+			trackElement->setShader(&mShaderDirectionalNoTex);
+			mEntities.push_back(trackElement);
+			mEditor.push_back(trackElement);
+			trackElement->setActive(false);
 		}
+
+
 	}
 	
 	int     PhiTestGamePart::update(Update& update)
 	{
 		for (auto entity : mEntities)
 		{
-			entity->update(update);
+            if (entity->active())
+                entity->update(update);
 		}
 		
-		return 0;
+        
+        if (glfwGetKey(update.window, GLFW_KEY_0))
+        {
+            for (auto entity : mGame) entity->setActive(true);
+            for (auto entity : mEditor) entity->setActive(false);
+        }
+
+        if (glfwGetKey(update.window, GLFW_KEY_1))
+        {
+            for (auto entity : mGame) entity->setActive(false);
+            for (auto entity : mEditor) entity->setActive(true);
+        }
+
+        return 0;
 	}
 	
 	void    PhiTestGamePart::destroy(Destroy& destroy)
@@ -73,7 +120,8 @@ namespace Game
 		
 		for (auto entity : mEntities)
 		{
-			entity->render(render);
+            if (entity->active())
+                entity->render(render);
 		}
 	}
 	
