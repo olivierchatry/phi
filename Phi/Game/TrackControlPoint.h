@@ -48,7 +48,6 @@ namespace Game
 
         bool                                    mButtonWasPressed;
         int                                     mSelectedTrackPoint;
-        glm::dvec2                              mPreviousMousePosition;
 		glm::vec3								mDistanceWithInitialClick;
 		glm::vec3								mInitialClick;
 

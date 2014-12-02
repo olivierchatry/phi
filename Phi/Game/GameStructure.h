@@ -32,6 +32,8 @@ namespace Game
 		glm::vec3       centerProjectedPosition;
 		glm::vec3       centerProjectedDirection;
 
+		bool			mouseTaken;
+
     };
     
     struct Destroy

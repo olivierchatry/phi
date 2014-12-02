@@ -6,6 +6,8 @@
 #include <Game/CameraFollowPlayer.h>
 #include <Game/CameraFPS.h>
 #include <Game/TrackControlPoint.h>
+#include <Game/MousePointOnTrack.h>
+
 namespace Game
 {
 	void    PhiTestGamePart::initialize(Initialize& initialize)
@@ -58,13 +60,23 @@ namespace Game
             cameraFps->setActive(false);
         }
         {
-            TrackControlPoint* trackElement = new TrackControlPoint();
-            trackElement->initialize(initialize);
-            trackElement->setShader(&mShaderDirectionalNoTex);
-            mEntities.push_back(trackElement);
-            mEditor.push_back(trackElement);
-            trackElement->setActive(false);
+			MousePointOnTrack* mousePointOnTrack = new MousePointOnTrack();
+			mousePointOnTrack->initialize(initialize);
+			mousePointOnTrack->setShader(&mShaderDirectionalNoTex);
+			mEntities.push_back(mousePointOnTrack);
+			mEditor.push_back(mousePointOnTrack);
+			mousePointOnTrack->setActive(false);
         }
+
+		{
+			TrackControlPoint* trackElement = new TrackControlPoint();
+			trackElement->initialize(initialize);
+			trackElement->setShader(&mShaderDirectionalNoTex);
+			mEntities.push_back(trackElement);
+			mEditor.push_back(trackElement);
+			trackElement->setActive(false);
+		}
+
 
 	}
 	

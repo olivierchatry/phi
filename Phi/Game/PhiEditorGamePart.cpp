@@ -5,6 +5,7 @@
 #include <Game/Terrain.h>
 #include <Game/CameraFPS.h>
 #include <Game/TrackControlPoint.h>
+#include <Game/MousePointOnTrack.h>
 
 namespace Game
 {
@@ -48,6 +49,7 @@ namespace Game
 			trackElement->setShader(&mShaderDirectionalNoTex);
 			mEntities.push_back(trackElement);
 		}
+
 	}
 
 	int     PhiEditorGamePart::update(Update& update)

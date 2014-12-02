@@ -53,7 +53,20 @@ namespace Game {
         update.level = this;
     }
     
-    bool Level::findNearestDelta(glm::vec3& position, float& delta, int steps)
+	void Level::addControlPoint(int id, float delta, glm::vec3& position, float radius)
+	{
+		{
+			auto it = mTrack.points.begin() + id;
+			mTrack.points.insert(it, position);
+		}
+		{
+			auto it = mTrack.radius.begin() + id;
+			mTrack.radius.insert(it, radius);
+		}
+		
+	}
+
+	bool Level::findNearestDelta(glm::vec3& position, float& delta, int steps/*, TrackChunkRenderable&* chunkResult*/)
     {
         float distance = std::numeric_limits<float>::max();
         
@@ -64,7 +77,7 @@ namespace Game {
         {
             if (chunk->deltaStart <=  deltaEspilon && deltaEspilon <= chunk->deltaEnd)
             {
-                float chunkDistance = chunk->aabb.distanceFrom(position);
+                float chunkDistance = glm::distance(chunk->aabb.center(), position);
                 if (distance > chunkDistance)
                 {
                     distance = chunkDistance;
@@ -133,11 +146,14 @@ namespace Game {
         mGeneratedTrack.radius.clear();
         mGeneratedTrack.points.reserve(genratedPointCount);
         mGeneratedTrack.radius.reserve(genratedPointCount);
+		mGeneratedTrack.ids.reserve(genratedPointCount);
         
         while (current < 1)
         {
-            mGeneratedTrack.points.push_back(get<glm::vec3>(current, mTrack.points));
+			int id;
+            mGeneratedTrack.points.push_back(get<glm::vec3>(current, mTrack.points, id));
             mGeneratedTrack.radius.push_back(get<float>(current, mTrack.radius));
+			mGeneratedTrack.ids.push_back(id);
             current += mSmallestDelta;
         }
         
@@ -257,6 +273,7 @@ namespace Game {
                 chunk->id = mTrackChunks.size();
                 Utils::GenerateNormals(&indices[0], &vs[0], 8, chunk->count, 0, 3, false);
                 
+				chunk->id = mGeneratedTrack.ids[chunkStartPointInSpline];
                 chunk->deltaStart = (chunkStartPointInSpline) * mSmallestDelta;
                 chunk->deltaEnd = (currentPointInSpline) * mSmallestDelta;
                 if (chunk->deltaStart < 0)

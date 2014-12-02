@@ -144,17 +144,14 @@ namespace Game
         Level* level = (Level*)update.level;
 		bool pressed = glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
 
-        glm::dvec2 currentMousePosition;
-        glfwGetCursorPos(update.window, &currentMousePosition.x, &currentMousePosition.y);
-
-        if (pressed && !mButtonWasPressed)
+        if (!pressed && !mButtonWasPressed)
         {
             mSelected = NULL;
             mSelectedTrackPoint = 0;
-            mPreviousMousePosition = currentMousePosition;
-            int trackPoint = 0;
-			float currentLength = std::numeric_limits<float>::max();
-            for (auto& p : level->mTrack.points)
+
+            int		trackPoint = 0;
+			float	currentLength = std::numeric_limits<float>::max();            
+			for (auto& p : level->mTrack.points)
             {
                 glm::mat4 matrix = glm::translate(p);
                 for (int i = 0; i < 4; ++i)
@@ -164,8 +161,7 @@ namespace Game
 					glm::vec3		collision;
 					if (Utils::RayIntersectBoundingBox(update.mouseProjectedPosition, update.mouseProjectedDirection, aabb, collision))
                     {
-						float length = glm::distance2(collision, update.mouseProjectedPosition);
-						
+						float length = glm::distance2(collision, update.mouseProjectedPosition);						
 						if (length < currentLength)
 						{ 
 							mSelected = &renderable;
@@ -183,13 +179,14 @@ namespace Game
         if (!pressed && mButtonWasPressed && mSelected)
         {
             Level::GenerateArgument arguments;
-            // level->generate();
+            level->generate();
             level->setShader(level->mShader);
 			mSelected = NULL;
         }
+		update.mouseTaken = false;
         mButtonWasPressed = pressed;
         if (mButtonWasPressed && mSelected)
-        {
+        {			
 			glm::vec3 p;
 			if (mMovePlane.intersects(update.mouseProjectedPosition, update.mouseProjectedDirection, p))            
 			{ 				
@@ -199,6 +196,6 @@ namespace Game
 				level->mTrack.points[mSelectedTrackPoint] = p ;
 			}
         }
-        mPreviousMousePosition = currentMousePosition;
+		update.mouseTaken = mSelected != NULL;
 	}
 };
