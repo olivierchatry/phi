@@ -144,6 +144,7 @@ namespace Game {
         size_t genratedPointCount = (size_t) glm::ceil( (1 / mSmallestDelta)  );
         mGeneratedTrack.points.clear();
         mGeneratedTrack.radius.clear();
+		mGeneratedTrack.ids.clear();
         mGeneratedTrack.points.reserve(genratedPointCount);
         mGeneratedTrack.radius.reserve(genratedPointCount);
 		mGeneratedTrack.ids.reserve(genratedPointCount);
