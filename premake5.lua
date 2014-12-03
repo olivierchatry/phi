@@ -12,10 +12,11 @@ project "Phi"
 		"Phi/Shaders/*.frag", 
 		"Phi/Shaders/*.vert", 
 		"Externals/glew/src/*.c", 
-		"Externals/stb_image/*.c", 
-		"Externals/stb_image/*.h"
+		"Externals/stb_image/*.h",
+		"Externals/imgui/*.cpp",
+		"Externals/imgui/*.h"
 	}
-	includedirs {"Externals/glfw/include", "Externals/glew/include",  "Externals/glm", "Externals/stb_image/", "Phi"}
+	includedirs {"Externals/glfw/include", "Externals/glew/include",  "Externals/glm", "Externals/", "Phi"}
 	floatingpoint "Fast"
 	flags       { "Symbols" }
 	debugdir "Phi"
@@ -25,7 +26,8 @@ project "Phi"
 	os.mkdir("build")
 	os.copydir("Phi/Shaders", "build/Shaders")
 	defines { "GLEW_STATIC", "GLM_FORCE_RADIANS" }
-
+  configuration { "Externals/imgui/*.cpp" }
+    flags { "NoPCH" }
 	configuration { "**.c"}
 		flags { "NoPCH" }
 

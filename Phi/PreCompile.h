@@ -29,4 +29,4 @@
 #   include <map>
 #endif
 
-#include <stb_image.h>
+#include <stb/stb_image.h>
