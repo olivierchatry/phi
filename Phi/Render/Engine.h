@@ -30,11 +30,11 @@ namespace Engine
 	protected:
 		Buffer() { mId = -1; }
 		~Buffer();
-    public:
-        GLuint id() { return mId;}
-        void    destroy();
+	public:
+		GLuint id() { return mId;}
+		void    destroy();
 
-    protected:
+	protected:
 		void    create(int type, int flags, int size, const void* data = NULL);
 		void    bind(int type);
 		void*   map(int type, int access);

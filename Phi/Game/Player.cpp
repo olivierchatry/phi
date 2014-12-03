@@ -42,7 +42,7 @@ namespace Game
 		mPhysic.boosterForce = 0.f;
 
 		mPreviousDeltaOnSpline = 0.f;
-        mDirection = mPhysic.direction;
+		mDirection = mPhysic.direction;
 	}
 	
 	void Player::destroy(Destroy &destroy)
@@ -67,8 +67,8 @@ namespace Game
 	
 	void Player::render(RenderArg &render)
 	{
-        if (render.passElement == Engine::Solid
-            && render.passFrame == Engine::Normal)
+		if (render.passElement == Engine::Solid
+			&& render.passFrame == Engine::Normal)
 		{
 			Render::Material material;
 			material.MaterialAmbient = glm::vec4(0.2f);
@@ -109,10 +109,10 @@ namespace Game
 		
 		mPhysic.position = mPhysic.position + (mPhysic.boosterVelocity + mPhysic.sideBoostVelocity + mPhysic.gravityVelocity) * deltaTime;
 		
-        float deltaOnSpline = mPreviousDeltaOnSpline;
+		float deltaOnSpline = mPreviousDeltaOnSpline;
 		level->findNearestDelta(mPhysic.position, deltaOnSpline, 1);
 
-        if (deltaOnSpline > 1.f)
+		if (deltaOnSpline > 1.f)
 		{
 			deltaOnSpline -= 1.f;
 			level->findNearestDelta(mPhysic.position, deltaOnSpline, 1);
@@ -126,27 +126,27 @@ namespace Game
 		
 		glm::vec3	pointOnSpline = level->getPosition(deltaOnSpline);
 		if (mPreviousDeltaOnSpline != deltaOnSpline)
-            mPhysic.direction = glm::normalize(pointOnSpline - level->getPosition(mPreviousDeltaOnSpline));
-        
-        if ((deltaOnSpline - mPreviousDeltaOnSpline) > 0.f)
-            mDirection = glm::normalize(mPhysic.previousPosition - mPhysic.position);
-        /*else
-            mDirection = mPhysic.direction;*/
-        
-        //mDirection = mDirection;
+			mPhysic.direction = glm::normalize(pointOnSpline - level->getPosition(mPreviousDeltaOnSpline));
+		
+		if ((deltaOnSpline - mPreviousDeltaOnSpline) > 0.f)
+			mDirection = glm::normalize(mPhysic.previousPosition - mPhysic.position);
+		/*else
+			mDirection = mPhysic.direction;*/
+		
+		//mDirection = mDirection;
 
-        mPreviousDeltaOnSpline = deltaOnSpline;
+		mPreviousDeltaOnSpline = deltaOnSpline;
 
 		float radius = level->getRadius(deltaOnSpline);
 		glm::vec3 vecToPoint = mPhysic.position - pointOnSpline;
-        // float currentRadius = glm::length(vecToPoint);
-        vecToPoint = glm::normalize(vecToPoint);
+		// float currentRadius = glm::length(vecToPoint);
+		vecToPoint = glm::normalize(vecToPoint);
 
-        ImGui::Text("%f %f %f -> %f %f %f\n ", deltaOnSpline, radius, vecToPoint.x, vecToPoint.y, vecToPoint.z);
-        
-        glm::vec3 collisionPoint	= vecToPoint * radius * 1.2f + pointOnSpline;
+		ImGui::Text("%f %f %f -> %f %f %f\n ", deltaOnSpline, radius, vecToPoint.x, vecToPoint.y, vecToPoint.z);
+		
+		glm::vec3 collisionPoint	= vecToPoint * radius * 1.2f + pointOnSpline;
 		// glm::vec3 hittingPoint		= vecToPoint * radius * 1.1f + pointOnSpline;
-        
+		
 		// float distancePlayerToSpline = glm::distance(pointOnSpline, mPhysic.position);
 		// float distanceTrackToSpline = glm::distance(pointOnSpline, hittingPoint);
 		
@@ -157,7 +157,7 @@ namespace Game
 			mPhysic.gravity = glm::vec3(0);
 		
 		mPhysic.gravityForce *= 12.f;
-        
+		
 		//if (distanceTrackToSpline > distancePlayerToSpline)
 		//	mPhysic.position = hittingPoint;
 		
@@ -177,7 +177,7 @@ namespace Game
 		if (stopForce)
 			mPhysic.sideBoostForce = 0.f;
 
-        // mPreviousDirection = mPhysic.direction;
+		// mPreviousDirection = mPhysic.direction;
 		
 		glm::vec3 right = glm::normalize(glm::cross(mPhysic.normal, mDirection));
 		glm::vec3 normal = glm::normalize(glm::cross(mDirection, right));

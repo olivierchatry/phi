@@ -36,13 +36,13 @@ namespace Game
 			mEntities.push_back(terrain);
 
 		}
-        {
-            CameraFPS* camera = new CameraFPS();
-            camera->initialize(initialize);
-            camera->setShader(&mShaderDirectionalNoTex);
+		{
+			CameraFPS* camera = new CameraFPS();
+			camera->initialize(initialize);
+			camera->setShader(&mShaderDirectionalNoTex);
 
-            mEntities.push_back(camera);
-        }
+			mEntities.push_back(camera);
+		}
 		{
 			Editor::TrackControlPoint* trackElement = new Editor::TrackControlPoint();
 			trackElement->initialize(initialize);

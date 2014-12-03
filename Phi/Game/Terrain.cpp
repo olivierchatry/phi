@@ -59,7 +59,7 @@ namespace Game
 	void Terrain::render(RenderArg& render)
 	{
 		if (render.passElement == Engine::Solid
-            && render.passFrame == Engine::Normal)
+			&& render.passFrame == Engine::Normal)
 		{
 			Render::Material material;
 			material.MaterialAmbient = glm::vec4(0.2f);

@@ -18,12 +18,12 @@ namespace Game
 		
 		Level* level = new Level();
 		Terrain* terrain = new Terrain();
-        {
-            Editor::ImGuiEntity* imgui = new Editor::ImGuiEntity();
-            imgui->initialize(initialize);
-            mEntities.push_back(imgui);
-        }
-        {
+		{
+			Editor::ImGuiEntity* imgui = new Editor::ImGuiEntity();
+			imgui->initialize(initialize);
+			mEntities.push_back(imgui);
+		}
+		{
 			initialize.level = level;
 			Level::GenerateArgument  arguments;
 			arguments.circleSubDivice = 40.f;
@@ -43,7 +43,7 @@ namespace Game
 			mEntities.push_back(terrain);
 
 		}
-        
+		
 		{
 			Player* player = new Player();
 			player->initialize(initialize);
@@ -54,25 +54,25 @@ namespace Game
 			CameraFollowPlayer* camera = new CameraFollowPlayer();
 			camera->initialize(initialize);
 			mEntities.push_back(camera);
-            mGame.push_back(camera);
-        }
-        {
-            CameraFPS* cameraFps = new CameraFPS();
-            cameraFps->initialize(initialize);
-            cameraFps->setShader(&mShaderDirectionalNoTex);
-            
-            mEntities.push_back(cameraFps);
-            mEditor.push_back(cameraFps);
-            cameraFps->setActive(false);
-        }
-        {
+			mGame.push_back(camera);
+		}
+		{
+			CameraFPS* cameraFps = new CameraFPS();
+			cameraFps->initialize(initialize);
+			cameraFps->setShader(&mShaderDirectionalNoTex);
+			
+			mEntities.push_back(cameraFps);
+			mEditor.push_back(cameraFps);
+			cameraFps->setActive(false);
+		}
+		{
 			Editor::MousePointOnTrack* mousePointOnTrack = new Editor::MousePointOnTrack();
 			mousePointOnTrack->initialize(initialize);
 			mousePointOnTrack->setShader(&mShaderDirectionalNoTex);
 			mEntities.push_back(mousePointOnTrack);
 			mEditor.push_back(mousePointOnTrack);
 			mousePointOnTrack->setActive(false);
-        }
+		}
 
 		{
 			Editor::TrackControlPoint* trackElement = new Editor::TrackControlPoint();
@@ -90,24 +90,24 @@ namespace Game
 	{
 		for (auto entity : mEntities)
 		{
-            if (entity->active())
-                entity->update(update);
+			if (entity->active())
+				entity->update(update);
 		}
 		
-        
-        if (glfwGetKey(update.window, GLFW_KEY_0))
-        {
-            for (auto entity : mGame) entity->setActive(true);
-            for (auto entity : mEditor) entity->setActive(false);
-        }
+		
+		if (glfwGetKey(update.window, GLFW_KEY_0))
+		{
+			for (auto entity : mGame) entity->setActive(true);
+			for (auto entity : mEditor) entity->setActive(false);
+		}
 
-        if (glfwGetKey(update.window, GLFW_KEY_1))
-        {
-            for (auto entity : mGame) entity->setActive(false);
-            for (auto entity : mEditor) entity->setActive(true);
-        }
+		if (glfwGetKey(update.window, GLFW_KEY_1))
+		{
+			for (auto entity : mGame) entity->setActive(false);
+			for (auto entity : mEditor) entity->setActive(true);
+		}
 
-        return 0;
+		return 0;
 	}
 	
 	void    PhiTestGamePart::destroy(Destroy& destroy)
@@ -126,8 +126,8 @@ namespace Game
 		
 		for (auto entity : mEntities)
 		{
-            if (entity->active())
-                entity->render(render);
+			if (entity->active())
+				entity->render(render);
 		}
 	}
 	
