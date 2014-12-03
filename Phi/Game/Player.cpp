@@ -43,7 +43,13 @@ namespace Game
 
 		mPreviousDeltaOnSpline = 0.f;
 		mDirection = mPhysic.direction;
-	}
+        
+        mDeltas.resize(100);
+        memset(&mDeltas.front(), 0, mDeltas.size()*sizeof(float));
+        mDeltaOffset = 0;
+        mDeltaMin = std::numeric_limits<float>::max();
+        mDeltaMax = -std::numeric_limits<float>::max();
+    }
 	
 	void Player::destroy(Destroy &destroy)
 	{
@@ -79,6 +85,7 @@ namespace Game
 			mShader->bind();
 			mShader->setMaterial(material);
 			mShader->setLightDirection(render.sunDirection);
+            mShader->setZPlane(render.near, render.far);
 
 			mShader->setMatrices(render.projection, render.view, mMatrix);
 
@@ -111,7 +118,6 @@ namespace Game
 		
 		float deltaOnSpline = mPreviousDeltaOnSpline;
 		level->findNearestDelta(mPhysic.position, deltaOnSpline, 1);
-
 		if (deltaOnSpline > 1.f)
 		{
 			deltaOnSpline -= 1.f;
@@ -123,8 +129,8 @@ namespace Game
 			// printf("(%f -> %f) !!! LAP %0.4lf\n", mPreviousDeltaOnSpline, deltaOnSpline, lapTime - lapStartTime);
 			// lapStartTime = lapTime;
 		}
-		
-		glm::vec3	pointOnSpline = level->getPosition(deltaOnSpline);
+
+        glm::vec3	pointOnSpline = level->getPosition(deltaOnSpline);
 		if (mPreviousDeltaOnSpline != deltaOnSpline)
 			mPhysic.direction = glm::normalize(pointOnSpline - level->getPosition(mPreviousDeltaOnSpline));
 		
@@ -135,7 +141,6 @@ namespace Game
 		
 		//mDirection = mDirection;
 
-		mPreviousDeltaOnSpline = deltaOnSpline;
 
 		float radius = level->getRadius(deltaOnSpline);
 		glm::vec3 vecToPoint = mPhysic.position - pointOnSpline;
@@ -143,14 +148,28 @@ namespace Game
 		vecToPoint = glm::normalize(vecToPoint);
 
         bool showWindow = true;
-        ImGui::Begin("Player", &showWindow, ImVec2(100,100), -1.0f, ImGuiWindowFlags_ShowBorders);
-        ImGui::SetWindowFontScale(2.f);
-        ImGui::SliderFloat("delta", &deltaOnSpline, 0.f, 1.f);
-        ImGui::SliderFloat("radius", &radius, 0.f, 2000.f);
-        ImGui::SliderFloat3("position", &vecToPoint.x, 0.f, 1.f);
-        ImGui::End();
-
+        {
+            float value = deltaOnSpline - mPreviousDeltaOnSpline;
+            if (value < 0.f)
+                value = 1.f + value;
+            
+            mDeltaMin = glm::min(value, mDeltaMin);
+            mDeltaMax = glm::max(value, mDeltaMax);
+        
+            mDeltas[mDeltaOffset] = value;
+            mDeltaOffset = (mDeltaOffset + 1) % mDeltas.size();
+            ImGui::Begin("Player", &showWindow, ImVec2(100,100), -1.0f, ImGuiWindowFlags_ShowBorders);
+            ImGui::SetWindowFontScale(2.f);
+            ImGui::SliderFloat("delta", &deltaOnSpline, 0.f, 1.f);
+            ImGui::SliderFloat("radius", &radius, 0.f, 2000.f);
+            ImGui::SliderFloat3("position", &vecToPoint.x, 0.f, 1.f);
+            ImGui::Text("delta %f max %f", value, mDeltaMax);
+            ImGui::PlotLines("deltas", &mDeltas.front(), (int)mDeltas.size(), (int)mDeltaOffset, "", 0.f, mDeltaMax, ImVec2(0.f,70.f));
+            ImGui::End();
+        }
 		
+        mPreviousDeltaOnSpline = deltaOnSpline;
+
 		glm::vec3 collisionPoint	= vecToPoint * radius * 1.2f + pointOnSpline;
 		// glm::vec3 hittingPoint		= vecToPoint * radius * 1.1f + pointOnSpline;
 		

@@ -33,6 +33,8 @@ namespace Game
 
         update.projection = glm::perspective(glm::quarter_pi<float>() + fov, ratio, 0.1f, 10000.0f);
         
+        update.near = 0.1f;
+        update.far = 100000.0f;
         
         glm::vec3 from = player.position - player.direction * 10.f + player.normal * 2.f;
         

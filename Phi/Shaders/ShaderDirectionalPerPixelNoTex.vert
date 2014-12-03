@@ -3,6 +3,7 @@
 uniform mat4 uni_ProjectionMatrix;
 uniform mat4 uni_ModelViewMatrix;
 uniform mat3 uni_NormalMatrix;
+uniform float   uni_ZCoeff;
 
 in vec3 in_Position;
 in vec3 in_Normal;
@@ -17,4 +18,6 @@ void main(void) {
     vertexShader_EyeNormal = normalize(uni_ModelViewMatrix * vec4(in_Normal, 0.0)).xyz;
     vertexShader_Eye = -(uni_ModelViewMatrix * position);
     gl_Position = uni_ProjectionMatrix * uni_ModelViewMatrix * position;
+    gl_Position.z = log2(max(1e-6, 1.0 + gl_Position.w)) * uni_ZCoeff - 1.0;
 }
+

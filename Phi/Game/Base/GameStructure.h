@@ -17,7 +17,8 @@ namespace Game
         float           delta;
         GameEntity*     level;
         GameEntity*     player;
-
+        GameEntity*     editor;
+        
         GLFWwindow*     window;
         
         glm::mat4       projection;
@@ -33,7 +34,8 @@ namespace Game
 		glm::vec3       centerProjectedDirection;
 
 		bool			mouseTaken;
-
+        float           far;
+        float           near;
     };
     
     struct Destroy
@@ -54,6 +56,8 @@ namespace Game
             mouseProjectedDirection = update.mouseProjectedDirection;
 			centerProjectedPosition = update.centerProjectedPosition;
 			centerProjectedDirection = update.centerProjectedDirection;
+            far = update.far;
+            near = update.near;
 		}
 
         Engine::PassFrame   passFrame;
@@ -70,6 +74,8 @@ namespace Game
 		
 		glm::vec3       centerProjectedPosition;
 		glm::vec3       centerProjectedDirection;
+        float           far;
+        float           near;
 
 		GameEntity*		level;
 

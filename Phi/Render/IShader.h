@@ -7,6 +7,7 @@ namespace Render {
 	
 	struct IShader {
         virtual void setMatrices(glm::mat4& projection, glm::mat4& view, glm::mat4& model) = 0;
+        virtual void setZPlane(float near, float far) = 0;
         virtual void bind() { mShader.bind(); }
 
         

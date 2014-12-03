@@ -3,6 +3,7 @@
 #include <Game/Level.h>
 #include <Game/Editor/TrackControlPoint.h>
 #include <Utils/Utils.h>
+#include <Game/Editor/EditorUI.h>
 
 namespace Editor
 {
@@ -88,6 +89,7 @@ namespace Editor
 
 			mShader->bind();
 			mShader->setLightDirection(render.sunDirection);
+            mShader->setZPlane(render.near, render.far);
 
 			
 			Render::Material material;
@@ -146,6 +148,18 @@ namespace Editor
 		Game::Level* level = (Game::Level*)update.level;
 		bool pressed = glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
 
+        bool activated = true;
+        if (update.editor)
+        {
+            Editor::EditorUI* ui = (Editor::EditorUI*) update.editor;
+            activated = ui->getSelectedTool() == Editor::EditorUI::Modify;
+        }
+        if (!activated)
+        {
+            mSelected = NULL;
+            return;
+        }
+        
 		if (!pressed && !mButtonWasPressed)
 		{
 			mSelected = NULL;
@@ -172,6 +186,7 @@ namespace Editor
 							mDistanceWithInitialClick = p - collision;
 							mInitialClick = collision;
 							currentLength = length;
+                            update.mouseTaken = true;
 						}
 					}
 				}
@@ -185,9 +200,9 @@ namespace Editor
 			level->setShader(level->mShader);
 			mSelected = NULL;
 		}
-		update.mouseTaken = false;
+        
 		mButtonWasPressed = pressed;
-		if (mButtonWasPressed && mSelected)
+		if (mButtonWasPressed && mSelected && !update.mouseTaken)
 		{			
 			glm::vec3 p;
 			if (mMovePlane.intersects(update.mouseProjectedPosition, update.mouseProjectedDirection, p))            
@@ -198,6 +213,5 @@ namespace Editor
 				level->mTrack.points[mSelectedTrackPoint] = p ;
 			}
 		}
-		update.mouseTaken = mSelected != NULL;
 	}
 };

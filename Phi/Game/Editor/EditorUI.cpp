@@ -11,7 +11,13 @@ namespace Editor
 
     void EditorUI::update(Game::Update& update)
     {
-        
+        update.editor = this;
+        bool showWindow = true;
+        update.mouseTaken = ImGui::Begin("Phi Track Editor", &showWindow, ImVec2(200,100), -1.0f, ImGuiWindowFlags_ShowBorders);
+        ImGui::SetWindowFontScale(2.f);
+        update.mouseTaken = ImGui::RadioButton("modify control point", &mSelectedTool, Modify);
+        update.mouseTaken = ImGui::RadioButton("add control point", &mSelectedTool, Add);
+        ImGui::End();
     }
 
     void EditorUI::destroy(Game::Destroy& destroy)
@@ -21,16 +27,9 @@ namespace Editor
 
     void EditorUI::render(Game::RenderArg& render)
     {
-        bool showWindow = true;
         if (render.passFrame == Engine::Normal
             && render.passElement == Engine::Solid)
         {
-            ImGui::Begin("Phi Track Editor", &showWindow, ImVec2(0,0), -1.0f, ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::SetWindowFontScale(2.f);
-            ImGui::RadioButton("modify control point", &mSelectedTool, 0);
-            ImGui::RadioButton("add control point", &mSelectedTool, 1);
-            
-            ImGui::End();
         }
     }
 

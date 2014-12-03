@@ -96,7 +96,9 @@ namespace Game
 		
 		
         update.projection = glm::perspective(glm::quarter_pi<float>(), ratio, 10.f, 100000.0f);
-        
+
+        update.near = 0.1f;
+        update.far = 1000000.0f;
                
 		update.from = mPosition;
 		update.to = mPosition + direction;

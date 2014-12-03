@@ -3,7 +3,7 @@
 #include <Game/Base/GameEntity.h>
 #include <Render/Engine.h>
 #include <Render/IShaderDirectionalLight.h>
-
+#include <Utils/Smooth.h>
 namespace Game
 {
 	class Player : public GameEntity
@@ -55,6 +55,10 @@ namespace Game
 		glm::mat4       mMatrix;
 		Render::IShaderDirectionalLightNoTex* mShader;
 		float           mPreviousDeltaOnSpline;
+        ImVector<float> mDeltas;
+        int             mDeltaOffset;
+        float           mDeltaMin;
+        float           mDeltaMax;
 	};
 };
 

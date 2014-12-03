@@ -70,6 +70,7 @@ namespace Game
 			mShader->bind();
 			mShader->setMaterial(material);
 			mShader->setLightDirection(render.sunDirection);
+            mShader->setZPlane(render.near, render.far);
 			glm::mat4 model(1.f);
 			mShader->setMatrices(render.projection, render.view, model);
 			for (auto chunk : mTerrainRenderables)

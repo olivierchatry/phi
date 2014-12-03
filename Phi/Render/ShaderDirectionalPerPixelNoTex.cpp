@@ -13,6 +13,7 @@ namespace Render
 		mVsPosition = mShader.getAttribute("in_Position");
 		mVsNormal = mShader.getAttribute("in_Normal");
 
+        mCoeff = mShader.getUniform("uni_Coeff");
 		mMatrixView = mShader.getUniform("uni_ModelViewMatrix");
 		mMatrixNormal = mShader.getUniform("uni_NormalMatrix");
 		mMatrixProjection = mShader.getUniform("uni_ProjectionMatrix");
@@ -25,7 +26,12 @@ namespace Render
 		
 	}
 		
-	void  ShaderDirectionalPerPixelNoTex::setMaterial(Material& material)
+    void ShaderDirectionalPerPixelNoTex::setZPlane(float near, float far)
+    {
+        mShader.setUniform(mCoeff, 2.0f / glm::log2(far + 1.0f));
+    }
+
+    void  ShaderDirectionalPerPixelNoTex::setMaterial(Material& material)
 	{
 		mShader.setUniform(mMaterialShininess, material.MaterialShininess);
 		mShader.setUniform(mMaterialDiffuse, material.MaterialDiffuse);

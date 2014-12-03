@@ -3,7 +3,7 @@
 #include <Game/Editor/MousePointOnTrack.h>
 #include <Math/AABB.h>
 #include <Utils/Utils.h>
-
+#include <Game/Editor/EditorUI.h>
 namespace Editor
 {
 	
@@ -63,6 +63,7 @@ namespace Editor
 			mShader->bind();
 			mShader->setMaterial(material);
 			mShader->setLightDirection(render.sunDirection);
+            mShader->setZPlane(render.near, render.far);
 
 			Engine::VertexArray::Binder  bind1(mRenderable.vertexArray);
 			glm::mat4 matrix = glm::translate(mPositionOnSpline);
@@ -77,7 +78,20 @@ namespace Editor
 	{
 		if (update.level == NULL)
 			return;
-				
+
+        bool activated = true;
+        if (update.editor)
+        {
+            Editor::EditorUI* ui = (Editor::EditorUI*) update.editor;
+            activated = ui->getSelectedTool() == Editor::EditorUI::Add;
+        }
+        
+        if (!activated)
+        {
+            mHavePosition = false;
+            return;
+        }
+        
 		Game::Level* level = (Game::Level*)update.level;
 		float currentLength = std::numeric_limits<float>::max();
 
