@@ -152,12 +152,6 @@ namespace Editor
 		{
 			if (render.passFrame == Engine::Post)
 			{
-				ImGuiIO& io = ImGui::GetIO();
-
-				//glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-				//glClearColor(0.8f, 0.6f, 0.6f, 1.0f);
-				//glClear(GL_COLOR_BUFFER_BIT);
-
 				ImGui::Render();
 			}
 		}
