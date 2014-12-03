@@ -38,12 +38,18 @@ namespace Game
         glClearColor(0, 0, 0, 0);
         glEnable(GL_DEPTH_TEST);
 
-        render.passFrame = Engine::Normal;
-        render.passElement = Engine::Solid;
-        Game::render(render);
-        
-        render.passElement = Engine::Transparent;
-        Game::render(render);
+		Engine::PassFrame passFrame[] = { Engine::Pre, Engine::Normal, Engine::Post };
+		for (int i = 0; i < 3; ++i)
+		{
+			render.passFrame = passFrame[i];
+
+			render.passFrame = Engine::Normal;
+			render.passElement = Engine::Solid;
+			Game::render(render);
+
+			render.passElement = Engine::Transparent;
+			Game::render(render);
+		}
     }
 };
 

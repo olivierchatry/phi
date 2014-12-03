@@ -4,11 +4,13 @@ namespace Engine
 {
 	enum PassFrame
 	{
-		Normal
+		Pre, 
+		Normal,
+		Post
 	};
 	
 	enum PassElement
-	{
+	{		
 		Solid,
 		Transparent
 	};
