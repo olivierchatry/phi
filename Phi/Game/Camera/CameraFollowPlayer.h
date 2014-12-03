@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Game/GameEntity.h>
+#include <Game/Base/GameEntity.h>
 #include <Utils/Smooth.h>
 
 namespace Game

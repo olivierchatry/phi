@@ -15,26 +15,11 @@ namespace Game
     void        Phi::initialize(Initialize &initialize)
     {
 		{
-<<<<<<< HEAD
-=======
-
->>>>>>> editor
 			GamePart* part = new PhiTestGamePart();
 			part->initialize(initialize);
 			addPart(Test, part);
             mCurrentGamePart = part;
 		}
-
-<<<<<<< HEAD
-/*		{
-=======
-		/*{
->>>>>>> editor
-			GamePart* part = new PhiEditorGamePart();
-			part->initialize(initialize);
-			addPart(Editor, part);
-			mCurrentGamePart = part;
-		}*/
 
     }
   

@@ -3,9 +3,9 @@
 #include <Game/Level.h>
 #include <Game/Player.h>
 #include <Game/Terrain.h>
-#include <Game/CameraFPS.h>
-#include <Game/TrackControlPoint.h>
-#include <Game/MousePointOnTrack.h>
+#include <Game/Camera/CameraFPS.h>
+#include <Game/Editor/TrackControlPoint.h>
+#include <Game/Editor/MousePointOnTrack.h>
 
 namespace Game
 {

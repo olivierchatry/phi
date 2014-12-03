@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Game/GamePart.h>
+#include <Game/Base/GamePart.h>
 #include <Render/ShaderDirectionalPerPixel.h>
 #include <Render/ShaderDirectionalPerPixelNoTex.h>
 

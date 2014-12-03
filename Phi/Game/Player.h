@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Game/GameEntity.h>
+#include <Game/Base/GameEntity.h>
 #include <Render/Engine.h>
 #include <Render/IShaderDirectionalLight.h>
 

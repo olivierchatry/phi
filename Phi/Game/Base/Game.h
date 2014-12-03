@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Game/GamePart.h>
-#include <Game/GameStructure.h>
+#include <Game/Base/GamePart.h>
+#include <Game/Base/GameStructure.h>
 
 namespace Game
 {

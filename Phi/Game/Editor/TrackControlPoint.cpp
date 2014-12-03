@@ -1,7 +1,7 @@
 
 #include <PreCompile.h>
 #include <Game/Level.h>
-#include <Game/TrackControlPoint.h>
+#include <Game/Editor/TrackControlPoint.h>
 #include <Utils/Utils.h>
 
 namespace Game
@@ -43,7 +43,7 @@ namespace Game
             mRenderableHelper[i].count = vs.size() / 6;
             mRenderableHelper[i].color = glm::vec4(direction[i], 1.f);
             mRenderableHelper[i].aabb = aabb;
-            mRenderableHelper[i].direction = glm::normalize(direction[i]);
+            mRenderableHelper[i].direction = direction[i];
         }
         mSelectedTrackPoint = -1;
         mButtonWasPressed = false;
