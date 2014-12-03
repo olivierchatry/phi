@@ -4,15 +4,15 @@
 #include <Render/Engine.h>
 #include <Render/IShaderDirectionalLight.h>
 
-namespace Game
+namespace Editor
 {
-	class MousePointOnTrack : public GameEntity
+	class MousePointOnTrack : public Game::GameEntity
 	{
 	public:
-		void initialize(Initialize &initialize) override;
-		void update(Update& update) override;
-		void destroy(Destroy& destroy) override;
-		void render(RenderArg& render) override;
+		void initialize(Game::Initialize &initialize) override;
+		void update(Game::Update& update) override;
+		void destroy(Game::Destroy& destroy) override;
+		void render(Game::RenderArg& render) override;
 		
 		void setShader(Render::IShaderDirectionalLightNoTex* shader);
 	public:

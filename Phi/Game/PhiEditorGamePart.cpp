@@ -44,7 +44,7 @@ namespace Game
             mEntities.push_back(camera);
         }
 		{
-            TrackControlPoint* trackElement = new TrackControlPoint();
+			Editor::TrackControlPoint* trackElement = new Editor::TrackControlPoint();
 			trackElement->initialize(initialize);
 			trackElement->setShader(&mShaderDirectionalNoTex);
 			mEntities.push_back(trackElement);

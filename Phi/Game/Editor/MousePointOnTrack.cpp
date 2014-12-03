@@ -4,10 +4,10 @@
 #include <Math/AABB.h>
 #include <Utils/Utils.h>
 
-namespace Game
+namespace Editor
 {
 	
-	void MousePointOnTrack::initialize(Initialize &initialize)
+	void MousePointOnTrack::initialize(Game::Initialize &initialize)
 	{
 		Math::AABB aabb;
 
@@ -24,12 +24,12 @@ namespace Game
 		mRenderable.vertexBuffer.create(GL_STATIC_DRAW, vs.size() * sizeof(float));
 		mRenderable.vertexBuffer.update(&vs[0], 0, vs.size() * sizeof(float));
 		mRenderable.count = vs.size() / 6;
-		Level* level = (Level*) initialize.level;	
+		Game::Level* level = (Game::Level*)initialize.level;
 		mWasPressed = false;
 	}
 
 	
-	void MousePointOnTrack::destroy(Destroy &destroy)
+	void MousePointOnTrack::destroy(Game::Destroy &destroy)
 	{
 		
 	}
@@ -49,7 +49,7 @@ namespace Game
 	}
 
 	
-	void MousePointOnTrack::render(RenderArg &render)
+	void MousePointOnTrack::render(Game::RenderArg &render)
 	{
 		if (render.passElement == Engine::Solid && mHavePosition)
 		{
@@ -93,15 +93,15 @@ namespace Game
 		}
 	}
 	
-	void MousePointOnTrack::update(Update& update)
+	void MousePointOnTrack::update(Game::Update& update)
 	{
 		if (update.level == NULL)
 			return;
 				
-		Level* level = (Level*) update.level;
+		Game::Level* level = (Game::Level*)update.level;
 		float currentLength = std::numeric_limits<float>::max();
 
-		Level::TrackChunkRenderable* chunk = NULL;
+		Game::Level::TrackChunkRenderable* chunk = NULL;
 		for (auto& p : level->mTrackChunks)
 		{
 

@@ -4,10 +4,10 @@
 #include <Game/Editor/TrackControlPoint.h>
 #include <Utils/Utils.h>
 
-namespace Game
+namespace Editor
 {
 	
-	void TrackControlPoint::initialize(Initialize &initialize)
+	void TrackControlPoint::initialize(Game::Initialize &initialize)
 	{
 
         float arrowLen = 40.f;
@@ -51,7 +51,7 @@ namespace Game
 
 	}
 	
-	void TrackControlPoint::destroy(Destroy &destroy)
+	void TrackControlPoint::destroy(Game::Destroy &destroy)
 	{
 		
 	}
@@ -77,11 +77,11 @@ namespace Game
 	}
 
 	
-	void TrackControlPoint::render(RenderArg &render)
+	void TrackControlPoint::render(Game::RenderArg &render)
 	{
 		if (render.level == NULL)
 			return;
-		Level* level = (Level*)render.level;
+		Game::Level* level = (Game::Level*)render.level;
 		if (render.passElement == Engine::Solid)
 		{
 
@@ -118,7 +118,7 @@ namespace Game
 			}
 		}
 	}
-	glm::vec3 TrackControlPoint::getPlaneNormal(Update& update, Type type)
+	glm::vec3 TrackControlPoint::getPlaneNormal(Game::Update& update, Type type)
 	{
 		switch (type)
 		{
@@ -137,11 +137,11 @@ namespace Game
 		}
 	}
 	
-	void TrackControlPoint::update(Update& update)
+	void TrackControlPoint::update(Game::Update& update)
 	{
 		if (update.level == NULL)
 			return;
-        Level* level = (Level*)update.level;
+		Game::Level* level = (Game::Level*)update.level;
 		bool pressed = glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
 
         if (!pressed && !mButtonWasPressed)
@@ -178,7 +178,7 @@ namespace Game
         }
         if (!pressed && mButtonWasPressed && mSelected)
         {
-            Level::GenerateArgument arguments;
+			Game::Level::GenerateArgument arguments;
             level->generate();
             level->setShader(level->mShader);
 			mSelected = NULL;

@@ -20,6 +20,8 @@ namespace Game
 			addPart(Test, part);
             mCurrentGamePart = part;
 		}
+		
+		// IMGUI related stuff.
 
     }
   

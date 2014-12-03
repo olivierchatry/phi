@@ -60,7 +60,7 @@ namespace Game
             cameraFps->setActive(false);
         }
         {
-			MousePointOnTrack* mousePointOnTrack = new MousePointOnTrack();
+			Editor::MousePointOnTrack* mousePointOnTrack = new Editor::MousePointOnTrack();
 			mousePointOnTrack->initialize(initialize);
 			mousePointOnTrack->setShader(&mShaderDirectionalNoTex);
 			mEntities.push_back(mousePointOnTrack);
@@ -69,7 +69,7 @@ namespace Game
         }
 
 		{
-			TrackControlPoint* trackElement = new TrackControlPoint();
+			Editor::TrackControlPoint* trackElement = new Editor::TrackControlPoint();
 			trackElement->initialize(initialize);
 			trackElement->setShader(&mShaderDirectionalNoTex);
 			mEntities.push_back(trackElement);

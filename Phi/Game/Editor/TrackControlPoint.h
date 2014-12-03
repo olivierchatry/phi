@@ -6,15 +6,15 @@
 #include <Math/AABB.h>
 #include <Math/Plane.h>
 
-namespace Game
+namespace Editor
 {
-	class TrackControlPoint : public GameEntity
+	class TrackControlPoint : public Game::GameEntity
 	{
 	public:
-		void initialize(Initialize &initialize) override;
-		void update(Update& update) override;
-		void destroy(Destroy& destroy) override;
-		void render(RenderArg& render) override;
+		void initialize(Game::Initialize &initialize) override;
+		void update(Game::Update& update) override;
+		void destroy(Game::Destroy& destroy) override;
+		void render(Game::RenderArg& render) override;
 		
 		void setShader(Render::IShaderDirectionalLightNoTex* shader);
 	
@@ -38,7 +38,7 @@ namespace Game
 		};
 		
 	private:
-		glm::vec3 getPlaneNormal(Update& update, Type type);
+		glm::vec3 getPlaneNormal(Game::Update& update, Type type);
 
 	private:
 		Renderable                              mRenderableHelper[4];
