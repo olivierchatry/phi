@@ -125,7 +125,7 @@ namespace Game
 			mDeltaStart = level->mTrack.points[chunk->id];
 			mDeltaEnd = level->getPosition(chunk->deltaEnd);
 			float delta = chunk->deltaStart;
-			mHavePosition = level->findNearestDelta(mPositionOnBox, delta, 1);
+			mHavePosition = level->findNearestDelta(mPositionOnBox, delta, 1, false);
 			float radius = 0.f;
 			if (mHavePosition)
 			{

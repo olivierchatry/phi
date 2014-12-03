@@ -41,7 +41,7 @@ namespace Game {
 	
 	public:
 		void computeChunkDistanceToCamera(const glm::vec3& position, const glm::vec3& direction);
-		bool findNearestDelta(glm::vec3& position, float& deltaFound, int steps = 1);		
+		bool findNearestDelta(glm::vec3& position, float& deltaFound, int steps = 1, bool deltaCoherence = true);		
 		void addControlPoint(int id, float delta, glm::vec3& position, float radius);
 		/*bool findNearestDelta(glm::vec3& position, float& deltaFound, int steps = 1, TrackChunkRenderable&* chunk);*/
 	

@@ -66,12 +66,12 @@ namespace Game {
 		
 	}
 
-	bool Level::findNearestDelta(glm::vec3& position, float& delta, int steps/*, TrackChunkRenderable&* chunkResult*/)
+	bool Level::findNearestDelta(glm::vec3& position, float& delta, int steps, bool deltaCoherence)
     {
         float distance = std::numeric_limits<float>::max();
         
         TrackChunkRenderable* selectedChunk = NULL;
-        float deltaEspilon = ( delta + std::numeric_limits<float>::epsilon());
+        float deltaEspilon = delta + std::numeric_limits<float>::epsilon();
         // get the nearest chunk.
         for (auto chunk : mTrackChunks)
         {
@@ -90,8 +90,8 @@ namespace Game {
         
         float currentLength = FLT_MAX;
         
-        float deltaStart = glm::max(selectedChunk->deltaStart, delta);
-        float deltaEnd = selectedChunk->deltaEnd;
+        float deltaStart = glm::max(selectedChunk->deltaStart, delta);		
+		float deltaEnd = selectedChunk->deltaEnd;
         float deltaDelta = mSmallestDelta;
         
         
@@ -100,7 +100,7 @@ namespace Game {
             for (float d = deltaStart; d < deltaEnd; d += deltaDelta)
             {
                 float length = glm::distance2(getPosition(d), position);
-                if (length < currentLength && d > delta)
+				if (length < currentLength && ((d > delta) || !deltaCoherence))
                 {
                     currentLength = length;
                     delta = d;
