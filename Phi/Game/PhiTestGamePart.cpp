@@ -8,6 +8,7 @@
 #include <Game/Editor/TrackControlPoint.h>
 #include <Game/Editor/MousePointOnTrack.h>
 #include <Game/Editor/ImGuiEntity.h>
+#include <Game/Editor/EditorUI.h>
 
 namespace Game
 {
@@ -65,7 +66,15 @@ namespace Game
 			mEditor.push_back(cameraFps);
 			cameraFps->setActive(false);
 		}
-		{
+        {
+            Editor::EditorUI* editorUI = new Editor::EditorUI();
+            editorUI->initialize(initialize);
+            
+            mEntities.push_back(editorUI);
+            mEditor.push_back(editorUI);
+            editorUI->setActive(false);
+        }
+        {
 			Editor::MousePointOnTrack* mousePointOnTrack = new Editor::MousePointOnTrack();
 			mousePointOnTrack->initialize(initialize);
 			mousePointOnTrack->setShader(&mShaderDirectionalNoTex);
@@ -82,7 +91,7 @@ namespace Game
 			mEditor.push_back(trackElement);
 			trackElement->setActive(false);
 		}
-
+        
 
 	}
 	

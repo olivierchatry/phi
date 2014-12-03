@@ -142,7 +142,14 @@ namespace Game
 		// float currentRadius = glm::length(vecToPoint);
 		vecToPoint = glm::normalize(vecToPoint);
 
-		ImGui::Text("%f %f %f -> %f %f %f\n ", deltaOnSpline, radius, vecToPoint.x, vecToPoint.y, vecToPoint.z);
+        bool showWindow = true;
+        ImGui::Begin("Player", &showWindow, ImVec2(100,100), -1.0f, ImGuiWindowFlags_ShowBorders);
+        ImGui::SetWindowFontScale(2.f);
+        ImGui::SliderFloat("delta", &deltaOnSpline, 0.f, 1.f);
+        ImGui::SliderFloat("radius", &radius, 0.f, 2000.f);
+        ImGui::SliderFloat3("position", &vecToPoint.x, 0.f, 1.f);
+        ImGui::End();
+
 		
 		glm::vec3 collisionPoint	= vecToPoint * radius * 1.2f + pointOnSpline;
 		// glm::vec3 hittingPoint		= vecToPoint * radius * 1.1f + pointOnSpline;

@@ -4,6 +4,36 @@
 
 namespace Editor
 {
+    // GLFW callbacks to get events
+    static void glfw_error_callback(int error, const char* description)
+    {
+        fputs(description, stderr);
+    }
+    
+    
+    static void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.MouseWheel += (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
+    }
+    
+    static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        if (action == GLFW_PRESS)
+            io.KeysDown[key] = true;
+        if (action == GLFW_RELEASE)
+            io.KeysDown[key] = false;
+        io.KeyCtrl = (mods & GLFW_MOD_CONTROL) != 0;
+        io.KeyShift = (mods & GLFW_MOD_SHIFT) != 0;
+    }
+    
+    static void glfw_char_callback(GLFWwindow* window, unsigned int c)
+    {
+        if (c > 0 && c < 0x10000)
+            ImGui::GetIO().AddInputCharacter((unsigned short)c);
+    }
+
 	void ImGuiEntity::RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count)
 	{
 		if (cmd_lists_count == 0)
@@ -77,12 +107,33 @@ namespace Editor
 	{
 		int width, height;
 		glfwGetFramebufferSize(initialize.window, &width, &height);
-
+        glfwSetCharCallback(initialize.window, glfw_char_callback);
+        glfwSetKeyCallback(initialize.window, glfw_key_callback);
+        glfwSetScrollCallback(initialize.window, glfw_scroll_callback);
+        
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2((float)width, (float)height);  // Display size, in pixels. For clamping windows positions.
 		io.PixelCenterOffset = 0.0f;                                  // Align OpenGL texels
 		io.RenderDrawListsFn = RenderDrawLists;
 		io.UserData = (void*)this;
+        io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;                       // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
+        io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
+        io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
+        io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
+        io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
+        io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
+        io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
+        io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
+        io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
+        io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
+        io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
+        io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
+        io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
+        io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
+        io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
+        io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
+        io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+
 		const void* png_data;
 		unsigned int png_size;
 		ImGui::GetDefaultFontData(NULL, NULL, &png_data, &png_size);
@@ -140,6 +191,7 @@ namespace Editor
 		io.DeltaTime = update.delta;
 
 		ImGui::NewFrame();
+        //ImGui::SetWindowFontScale(2.f);
 }
 	
 	void ImGuiEntity::destroy(Game::Destroy& destroy)
