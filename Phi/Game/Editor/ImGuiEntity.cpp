@@ -114,7 +114,7 @@ namespace Editor
 			Engine::VertexBuffer::Binder    bind2(mVertexBuffer);
 
 			mVertexArray.attrib(mVsPosition,	2, GL_FLOAT,			GL_FALSE, sizeof(ImDrawVert),	offsetof(ImDrawVert, pos));
-			mVertexArray.attrib(mVsColor,		4, GL_UNSIGNED_BYTE,	GL_FALSE, sizeof(ImDrawVert),	offsetof(ImDrawVert, col));
+			mVertexArray.attrib(mVsColor,		4, GL_UNSIGNED_BYTE,	GL_TRUE, sizeof(ImDrawVert),	offsetof(ImDrawVert, col));
 			mVertexArray.attrib(mVsUV,			2, GL_FLOAT,			GL_FALSE, sizeof(ImDrawVert),	offsetof(ImDrawVert, uv));
 		}
 	}
@@ -133,7 +133,7 @@ namespace Editor
 		glfwGetCursorPos(update.window, &currentMousePosition.x, &currentMousePosition.y);
 		currentMousePosition *= scale;
 		// currentMousePosition.y = height - currentMousePosition.y ;
-
+		io.DisplaySize = ImVec2((float)width, (float)height);  // Display size, in pixels. For clamping windows positions.
 		io.MousePos = ImVec2((float)currentMousePosition.x, (float)currentMousePosition.y);
 		io.MouseDown[0] = glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 		io.MouseDown[1] = glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
