@@ -333,7 +333,8 @@ namespace Game {
     
     void Level::render(RenderArg &render)
     {
-        if (render.passElement == Engine::Transparent)
+        if (render.passElement == Engine::Transparent
+            && render.passFrame == Engine::Normal)
         {
             computeChunkDistanceToCamera(render.from, glm::normalize(render.to - render.from));
             std::sort(mTrackChunks.begin(), mTrackChunks.end(), Level::sortByDistance);

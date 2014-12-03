@@ -42,8 +42,6 @@ namespace Game
 		for (int i = 0; i < 3; ++i)
 		{
 			render.passFrame = passFrame[i];
-
-			render.passFrame = Engine::Normal;
 			render.passElement = Engine::Solid;
 			Game::render(render);
 

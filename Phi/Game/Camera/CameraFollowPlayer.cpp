@@ -36,7 +36,7 @@ namespace Game
         
         glm::vec3 from = player.position - player.direction * 10.f + player.normal * 2.f;
         
-        {
+        /*{
             level->findNearestDelta(from, mDeltaOnSpline, 1);
             float       radiusCamera = level->getRadius(mDeltaOnSpline);
             glm::vec3   pointCamera = level->getPosition(mDeltaOnSpline);
@@ -47,7 +47,7 @@ namespace Game
             // if (glm::distance(pointCamera, cameraCollisionPoint) >
             //    glm::distance(pointCamera, from))
             //    from = cameraCollisionPoint;
-        }
+        }*/
         glm::vec3 to = player.position;
 
         glm::vec3 normal = glm::cross(player.right, glm::normalize(to - from));

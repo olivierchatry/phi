@@ -67,7 +67,8 @@ namespace Game
 	
 	void Player::render(RenderArg &render)
 	{
-		if (render.passElement == Engine::Solid)
+        if (render.passElement == Engine::Solid
+            && render.passFrame == Engine::Normal)
 		{
 			Render::Material material;
 			material.MaterialAmbient = glm::vec4(0.2f);
@@ -138,16 +139,16 @@ namespace Game
 
 		float radius = level->getRadius(deltaOnSpline);
 		glm::vec3 vecToPoint = mPhysic.position - pointOnSpline;
-        float currentRadius = glm::length(vecToPoint);
+        // float currentRadius = glm::length(vecToPoint);
         vecToPoint = glm::normalize(vecToPoint);
 
-        printf("%f %f %f -> %f %f %f\n ", deltaOnSpline, currentRadius, radius, vecToPoint.x, vecToPoint.y, vecToPoint.z);
+        ImGui::Text("%f %f %f -> %f %f %f\n ", deltaOnSpline, radius, vecToPoint.x, vecToPoint.y, vecToPoint.z);
         
         glm::vec3 collisionPoint	= vecToPoint * radius * 1.2f + pointOnSpline;
-		glm::vec3 hittingPoint		= vecToPoint * radius * 1.1f + pointOnSpline;
+		// glm::vec3 hittingPoint		= vecToPoint * radius * 1.1f + pointOnSpline;
         
-		float distancePlayerToSpline = glm::distance(pointOnSpline, mPhysic.position);
-		float distanceTrackToSpline = glm::distance(pointOnSpline, hittingPoint);
+		// float distancePlayerToSpline = glm::distance(pointOnSpline, mPhysic.position);
+		// float distanceTrackToSpline = glm::distance(pointOnSpline, hittingPoint);
 		
 		mPhysic.gravityForce = glm::distance(collisionPoint, mPhysic.position);
 		if (mPhysic.gravityForce > std::numeric_limits<float>::epsilon())

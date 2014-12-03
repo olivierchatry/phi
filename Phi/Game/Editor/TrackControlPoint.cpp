@@ -82,7 +82,8 @@ namespace Editor
 		if (render.level == NULL)
 			return;
 		Game::Level* level = (Game::Level*)render.level;
-		if (render.passElement == Engine::Solid)
+		if (render.passElement == Engine::Solid
+            && render.passFrame == Engine::Normal)
 		{
 
 			mShader->bind();

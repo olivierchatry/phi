@@ -27,6 +27,7 @@
 #	include <limits>
 #	include <algorithm>
 #   include <map>
+#   include <imgui/imgui.h>
 #endif
 
 #include <stb/stb_image.h>

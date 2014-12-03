@@ -24,7 +24,6 @@ namespace Editor
 		mRenderable.vertexBuffer.create(GL_STATIC_DRAW, vs.size() * sizeof(float));
 		mRenderable.vertexBuffer.update(&vs[0], 0, vs.size() * sizeof(float));
 		mRenderable.count = vs.size() / 6;
-		Game::Level* level = (Game::Level*)initialize.level;
 		mWasPressed = false;
 	}
 
@@ -51,7 +50,9 @@ namespace Editor
 	
 	void MousePointOnTrack::render(Game::RenderArg &render)
 	{
-		if (render.passElement == Engine::Solid && mHavePosition)
+		if (render.passElement == Engine::Solid
+            && render.passFrame == Engine::Normal
+            && mHavePosition)
 		{
 			Render::Material material;
 			material.MaterialAmbient = glm::vec4(0.2f);
@@ -69,27 +70,6 @@ namespace Editor
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
 			glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
-
-			matrix = glm::translate(mPositionOnBox);
-			mShader->setMatrices(render.projection, render.view, matrix);
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-			glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
-			material.MaterialDiffuse = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-			mShader->setMaterial(material);
-
-			matrix = glm::translate(mDeltaStart);
-			mShader->setMatrices(render.projection, render.view, matrix);
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-			glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
-			matrix = glm::translate(mDeltaEnd);
-			mShader->setMatrices(render.projection, render.view, matrix);
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-			glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
-
-
 		}
 	}
 	

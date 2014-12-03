@@ -12,7 +12,7 @@ project "Phi"
 		"Phi/Shaders/*.frag", 
 		"Phi/Shaders/*.vert", 
 		"Externals/glew/src/*.c", 
-		"Externals/stb_image/*.h",
+		"Externals/stb/*.h",
 		"Externals/imgui/*.cpp",
 		"Externals/imgui/*.h"
 	}

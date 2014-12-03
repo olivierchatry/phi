@@ -7,6 +7,7 @@
 #include <Game/Camera/CameraFPS.h>
 #include <Game/Editor/TrackControlPoint.h>
 #include <Game/Editor/MousePointOnTrack.h>
+#include <Game/Editor/ImGuiEntity.h>
 
 namespace Game
 {
@@ -17,7 +18,12 @@ namespace Game
 		
 		Level* level = new Level();
 		Terrain* terrain = new Terrain();
-		{
+        {
+            Editor::ImGuiEntity* imgui = new Editor::ImGuiEntity();
+            imgui->initialize(initialize);
+            mEntities.push_back(imgui);
+        }
+        {
 			initialize.level = level;
 			Level::GenerateArgument  arguments;
 			arguments.circleSubDivice = 40.f;
