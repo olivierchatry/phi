@@ -100,7 +100,7 @@ namespace Game {
             for (float d = deltaStart; d < deltaEnd; d += deltaDelta)
             {
                 float length = glm::distance2(getPosition(d), position);
-                if (length < currentLength && d >= delta)
+                if (length < currentLength && d > delta)
                 {
                     currentLength = length;
                     delta = d;

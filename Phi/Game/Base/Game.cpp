@@ -1,5 +1,5 @@
 #include <PreCompile.h>
-#include <Game/GameEntity.h>
+#include <Game/Base/GameEntity.h>
 
 namespace Game
 {

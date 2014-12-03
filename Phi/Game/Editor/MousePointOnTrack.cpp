@@ -1,7 +1,7 @@
 #include <PreCompile.h>
 #include <Game/Level.h>
-#include <Game/MousePointOnTrack.h>
-#include <Render/AABB.h>
+#include <Game/Editor/MousePointOnTrack.h>
+#include <Math/AABB.h>
 #include <Utils/Utils.h>
 
 namespace Game

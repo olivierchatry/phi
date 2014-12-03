@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Game/GameStructure.h>
+#include <Game/Base/GameStructure.h>
 
 namespace Game
 {

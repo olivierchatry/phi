@@ -1,5 +1,5 @@
 #include <PreCompile.h>
-#include <Game/CameraFPS.h>
+#include <Game/Camera/CameraFPS.h>
 #include <Game/Player.h>
 #include <Game/Level.h>
 #include <Utils/Utils.h>

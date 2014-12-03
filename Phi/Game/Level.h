@@ -1,10 +1,10 @@
 #pragma once
 
+#include <Math/AABB.h>
 #include <Render/Engine.h>
-#include <Render/AABB.h>
 #include <Render/IShaderDirectionalLight.h>
 #include <Render/Camera.h>
-#include <Game/GameEntity.h>
+#include <Game/Base/GameEntity.h>
 
 namespace Game {
     class Level : public GameEntity {

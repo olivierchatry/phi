@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Game/GameEntity.h>
+#include <Game/Base/GameEntity.h>
 #include <Render/Engine.h>
 #include <Render/IShaderDirectionalLight.h>
-#include <Render/AABB.h>
+#include <Math/AABB.h>
 #include <Math/Plane.h>
 
 namespace Game
