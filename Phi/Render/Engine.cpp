@@ -11,6 +11,7 @@ namespace Engine
 		glGenBuffers(1, &mId);
 		glBindBuffer(type, mId);
 		glBufferData(type, size, data, flags);
+		mSize = size;
 	}
 	
 	void    Buffer::unbind(int type)
@@ -26,6 +27,8 @@ namespace Engine
 	void    Buffer::update(int type, const void* data, int offset, int size)
 	{
 		glBufferSubData(type, offset, size, data);
+		size += offset;
+		if (mSize < size) mSize = size;
 	}
 
 	void*   Buffer::map(int type, int access)
@@ -45,6 +48,11 @@ namespace Engine
 		mId = -1;
 	}
 	
+	int		Buffer::size()
+	{
+		return mSize;
+	}
+
 	Buffer::~Buffer()
 	{
 		destroy();

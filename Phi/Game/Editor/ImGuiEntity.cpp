@@ -64,40 +64,45 @@ namespace Editor
 		entity->mShader.setUniform(entity->mMatrixProjection, projection);
 		entity->mShader.setUniform(entity->mTexture, 0);
 		entity->mTextureFont.bind(0);
+		
+		size_t total_vtx_count = 0;
+		for (int n = 0; n < cmd_lists_count; n++)
+			total_vtx_count += cmd_lists[n]->vtx_buffer.size();
 
-		// Render command lists
+		Engine::VertexBuffer::Binder     bind1(entity->mVertexBuffer);
+		size_t needed_buffer_size = total_vtx_count * sizeof(ImDrawVert);
+		if (needed_buffer_size > entity->mVertexBuffer.size())
+			entity->mVertexBuffer.update(NULL, 0, needed_buffer_size);
+
+		unsigned char* buffer_data = (unsigned char*)entity->mVertexBuffer.map(GL_WRITE_ONLY);
+		if (!buffer_data)
+			return;
 		for (int n = 0; n < cmd_lists_count; n++)
 		{
 			const ImDrawList* cmd_list = cmd_lists[n];
-			const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->vtx_buffer.front();
-			int size_update = 0;
-			
-			for (size_t cmd_i = 0; cmd_i < cmd_list->commands.size(); cmd_i++)
-			{
-				const ImDrawCmd* pcmd = &cmd_list->commands[cmd_i];
-				size_update += pcmd->vtx_count;
-			}
+			memcpy(buffer_data, &cmd_list->vtx_buffer[0], cmd_list->vtx_buffer.size() * sizeof(ImDrawVert));
+			buffer_data += cmd_list->vtx_buffer.size() * sizeof(ImDrawVert);
+		}
+		entity->mVertexBuffer.unmap();
 
+		Engine::VertexArray::Binder     bind2(entity->mVertexArray);
+		// Render command lists
+		int cmd_offset = 0;
+		for (int n = 0; n < cmd_lists_count; n++)
+		{
+			const ImDrawList* cmd_list = cmd_lists[n];
+			int vtx_offset = cmd_offset;
+			const ImDrawCmd* pcmd_end = cmd_list->commands.end();
+			for (const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++)
 			{
-				Engine::VertexBuffer::Binder     bind1(entity->mVertexBuffer);
-				entity->mVertexBuffer.update(vtx_buffer, 0, size_update * sizeof(ImDrawVert));
+				glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
+				glDrawArrays(GL_TRIANGLES, vtx_offset, pcmd->vtx_count);
+				vtx_offset += pcmd->vtx_count;
 			}
-
-			{
-				Engine::VertexArray::Binder     bind1(entity->mVertexArray);
-				int vtx_offset = 0;
-				for (size_t cmd_i = 0; cmd_i < cmd_list->commands.size(); cmd_i++)
-				{
-					const ImDrawCmd* pcmd = &cmd_list->commands[cmd_i];
-					glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
-					glDrawArrays(GL_TRIANGLES, vtx_offset, pcmd->vtx_count);
-					vtx_offset += pcmd->vtx_count;
-				}
-			}
+			cmd_offset = vtx_offset;
 		}
 		
 		// Restore modified state
-		glPopAttrib();
 		glScissor(0, 0, width, height);
 		glDisable(GL_SCISSOR_TEST);
 		glDisable(GL_TEXTURE_2D);
