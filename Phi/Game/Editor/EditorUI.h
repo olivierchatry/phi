@@ -22,5 +22,7 @@ namespace Editor
         int     getSelectedTool() { return mSelectedTool; }
     private:
         int     mSelectedTool;
+		bool	mSave;
+		char	mFileName[255];
     };
 };

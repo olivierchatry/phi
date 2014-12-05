@@ -55,10 +55,12 @@ namespace Game
 		glm::mat4       mMatrix;
 		Render::IShaderDirectionalLightNoTex* mShader;
 		float           mPreviousDeltaOnSpline;
-        ImVector<float> mDeltas;
-        int             mDeltaOffset;
-        float           mDeltaMin;
-        float           mDeltaMax;
+		ImVector<float> mDeltas;
+		int             mDeltaOffset;
+		float           mDeltaMin;
+		float           mDeltaMax;
+		float			mMaxSpeedBooster = 3000.f;;
+		float			mMaxSpeedSide;
 	};
 };
 

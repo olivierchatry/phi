@@ -7,53 +7,53 @@
 namespace Game
 {
 	void CameraFPS::initialize(Initialize& intialize)
-    {
+	{
 		glfwGetCursorPos(intialize.window, &mPreviousMousePosition.x, &mPreviousMousePosition.y);
-        Math::AABB aabb;
-        
-        aabb.reset();
-        aabb.add(glm::vec3(-100.f));
-        aabb.add(glm::vec3(100.f));
-        
-        std::vector<float> vs;
-        
-        Utils::GenerateCube(aabb, vs);
-        Utils::GenerateNormals(&vs[0], 6, vs.size() / 6, 0, 3);
-        
-        mRenderable.vertexBuffer.create(GL_STATIC_DRAW, vs.size() * sizeof(float));
-        mRenderable.vertexBuffer.update(&vs[0], 0, vs.size() * sizeof(float));
-        mRenderable.count = vs.size() / 6;
-    }
-    
-    void CameraFPS::setShader(Render::IShaderDirectionalLightNoTex *shader)
-    {
-        mShader = shader;
-        mRenderable.vertexArray.destroy();
-        mRenderable.vertexArray.create();
-        {
-            Engine::VertexArray::Binder     bind1(mRenderable.vertexArray);
-            Engine::VertexBuffer::Binder    bind2(mRenderable.vertexBuffer);
-            
-            mRenderable.vertexArray.attrib(shader->getVsPosition(), 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-            mRenderable.vertexArray.attrib(shader->getVsNormal(), 3, GL_FLOAT, GL_TRUE, 6 * sizeof(float), 3 * sizeof(float));
-        }
-    }
+		Math::AABB aabb;
+		
+		aabb.reset();
+		aabb.add(glm::vec3(-100.f));
+		aabb.add(glm::vec3(100.f));
+		
+		std::vector<float> vs;
+		
+		Utils::GenerateCube(aabb, vs);
+		Utils::GenerateNormals(&vs[0], 6, vs.size() / 6, 0, 3);
+		
+		mRenderable.vertexBuffer.create(GL_STATIC_DRAW, vs.size() * sizeof(float));
+		mRenderable.vertexBuffer.update(&vs[0], 0, vs.size() * sizeof(float));
+		mRenderable.count = vs.size() / 6;
+	}
+	
+	void CameraFPS::setShader(Render::IShaderDirectionalLightNoTex *shader)
+	{
+		mShader = shader;
+		mRenderable.vertexArray.destroy();
+		mRenderable.vertexArray.create();
+		{
+			Engine::VertexArray::Binder     bind1(mRenderable.vertexArray);
+			Engine::VertexBuffer::Binder    bind2(mRenderable.vertexBuffer);
+			
+			mRenderable.vertexArray.attrib(shader->getVsPosition(), 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+			mRenderable.vertexArray.attrib(shader->getVsNormal(), 3, GL_FLOAT, GL_TRUE, 6 * sizeof(float), 3 * sizeof(float));
+		}
+	}
 
-    
+	
 	void CameraFPS::update(Update& update)
-    {
-        Level* level = (Level*)update.level;
-        
-        if (level == NULL)
-            return;
-        
-        float ratio;
-        int width, height;
-        
-        glfwGetFramebufferSize(update.window, &width, &height);
-        ratio = width / (float)height;
+	{
+		Level* level = (Level*)update.level;
+		
+		if (level == NULL)
+			return;
+		
+		float ratio;
+		int width, height;
+		
+		glfwGetFramebufferSize(update.window, &width, &height);
+		ratio = width / (float)height;
 
-        glViewport(0, 0, width, height);
+		glViewport(0, 0, width, height);
 
 		// Get mouse position
 		glm::dvec2 currentMousePosition;
@@ -61,7 +61,7 @@ namespace Game
 
 		glm::dvec2 delta = mPreviousMousePosition - currentMousePosition;
 		mPreviousMousePosition = currentMousePosition;
-		if (glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_2))
+		if (glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_1))
 		{
 			mHorizontalAngle += mMouseSpeed * update.delta * float(delta.x);
 			mVerticalAngle -= mMouseSpeed * update.delta * float(delta.y);
@@ -95,35 +95,35 @@ namespace Game
 		}
 		
 		
-        update.projection = glm::perspective(glm::quarter_pi<float>(), ratio, 10.f, 100000.0f);
+		update.projection = glm::perspective(glm::quarter_pi<float>(), ratio, 10.f, 100000.0f);
 
-        update.near = 0.1f;
-        update.far = 1000000.0f;
-               
+		update.near = 0.1f;
+		update.far = 1000000.0f;
+			   
 		update.from = mPosition;
 		update.to = mPosition + direction;
 
 		update.view = glm::lookAt(update.from, update.to, up); 
 
 		update.unproject = glm::inverse(update.projection * update.view);
-        int windowWidth, windowHeight;
-        glfwGetWindowSize(update.window, &windowWidth, &windowHeight);
-        
-        currentMousePosition.x *= (width / (double) windowWidth);
-        currentMousePosition.y *= (height / (double) windowHeight);
-        currentMousePosition.y = height - currentMousePosition.y ;
+		int windowWidth, windowHeight;
+		glfwGetWindowSize(update.window, &windowWidth, &windowHeight);
+		
+		currentMousePosition.x *= (width / (double) windowWidth);
+		currentMousePosition.y *= (height / (double) windowHeight);
+		currentMousePosition.y = height - currentMousePosition.y ;
 
-        update.mouseProjectedPosition =
-            glm::unProject(glm::vec3(currentMousePosition.x, currentMousePosition.y, 0.0f),
-                           update.view,
-                           update.projection,
-                           glm::vec4(0, 0, width, height));
-        
+		update.mouseProjectedPosition =
+			glm::unProject(glm::vec3(currentMousePosition.x, currentMousePosition.y, 0.0f),
+						   update.view,
+						   update.projection,
+						   glm::vec4(0, 0, width, height));
+		
 		update.mouseProjectedDirection =
-            glm::unProject(glm::vec3(currentMousePosition.x, currentMousePosition.y, 0.99f),
-                           update.view,
-                           update.projection,
-                           glm::vec4(0, 0, width, height));
+			glm::unProject(glm::vec3(currentMousePosition.x, currentMousePosition.y, 0.99f),
+						   update.view,
+						   update.projection,
+						   glm::vec4(0, 0, width, height));
 
 		update.mouseProjectedDirection = glm::normalize(update.mouseProjectedDirection - update.mouseProjectedPosition);
 
@@ -143,38 +143,38 @@ namespace Game
 
 		update.centerProjectedDirection = glm::normalize(update.centerProjectedDirection - update.centerProjectedPosition);
 		
-    }
+	}
 
 	void CameraFPS::destroy(Destroy& destroy)
-    {
-        
-    }
+	{
+		
+	}
 
 	void CameraFPS::render(RenderArg& render)
-    {
-        if (render.passElement == Engine::Solid)
-        {
+	{
+		if (render.passElement == Engine::Solid)
+		{
 /*
-            Render::Material material;
-            material.MaterialAmbient = glm::vec4(0.2f);
-            material.MaterialDiffuse = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-            material.MaterialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-            material.MaterialShininess = 64.f;
-            
-            mShader->bind();
-            mShader->setMaterial(material);
-            mShader->setLightDirection(render.sunDirection);
-            glm::mat4 matrix = glm::translate(render.mouseProjectedDirection);
-            
-            mShader->setMatrices(render.projection, render.view, matrix);
-            
-            Engine::VertexArray::Binder  bind1(mRenderable.vertexArray);
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_BACK);
-            glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
+			Render::Material material;
+			material.MaterialAmbient = glm::vec4(0.2f);
+			material.MaterialDiffuse = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			material.MaterialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			material.MaterialShininess = 64.f;
+			
+			mShader->bind();
+			mShader->setMaterial(material);
+			mShader->setLightDirection(render.sunDirection);
+			glm::mat4 matrix = glm::translate(render.mouseProjectedDirection);
+			
+			mShader->setMatrices(render.projection, render.view, matrix);
+			
+			Engine::VertexArray::Binder  bind1(mRenderable.vertexArray);
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+			glDrawArrays(GL_TRIANGLES, 0, mRenderable.count);
 */
-        }
-        
-    }
-    
+		}
+		
+	}
+	
 }

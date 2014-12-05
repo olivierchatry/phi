@@ -347,7 +347,7 @@ namespace Game {
 			
 			mShader->bind();
 			mShader->setLightDirection(render.sunDirection);
-            mShader->setZPlane(render.near, render.far);
+			mShader->setZPlane(render.near, render.far);
 
 			material.TextureDiffuse = 0;
 			mTexture.bind(0);
