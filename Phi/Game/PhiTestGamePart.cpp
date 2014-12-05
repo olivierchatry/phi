@@ -50,6 +50,7 @@ namespace Game
 			player->initialize(initialize);
 			player->setShader(&mShaderDirectionalNoTex);
 			mEntities.push_back(player);
+            mGame.push_back(player);
 		}
 		{
 			CameraFollowPlayer* camera = new CameraFollowPlayer();

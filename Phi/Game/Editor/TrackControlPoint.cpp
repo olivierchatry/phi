@@ -186,7 +186,6 @@ namespace Editor
 							mDistanceWithInitialClick = p - collision;
 							mInitialClick = collision;
 							currentLength = length;
-                            update.mouseTaken = true;
 						}
 					}
 				}

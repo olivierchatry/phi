@@ -14,7 +14,8 @@ project "Phi"
 		"Externals/glew/src/*.c", 
 		"Externals/stb/*.h",
 		"Externals/imgui/*.cpp",
-		"Externals/imgui/*.h"
+		"Externals/imgui/*.h",
+		"Externals/HappyHTTP/happyhttp.*"
 	}
 	includedirs {"Externals/glfw/include", "Externals/glew/include",  "Externals/glm", "Externals/", "Phi"}
 	floatingpoint "Fast"

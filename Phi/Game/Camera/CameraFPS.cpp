@@ -61,11 +61,14 @@ namespace Game
 
 		glm::dvec2 delta = mPreviousMousePosition - currentMousePosition;
 		mPreviousMousePosition = currentMousePosition;
-		if (glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_1))
-		{
-			mHorizontalAngle += mMouseSpeed * update.delta * float(delta.x);
-			mVerticalAngle -= mMouseSpeed * update.delta * float(delta.y);
-		}
+        if (!update.mouseTaken)
+        {
+            if (glfwGetMouseButton(update.window, GLFW_MOUSE_BUTTON_1))
+            {
+                mHorizontalAngle += mMouseSpeed * update.delta * float(delta.x);
+                mVerticalAngle -= mMouseSpeed * update.delta * float(delta.y);
+            }
+        }
 
 		glm::quat quaternion(glm::vec3(0.f, mVerticalAngle, mHorizontalAngle));
 		glm::mat4 view = glm::toMat4(quaternion);
