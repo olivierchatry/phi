@@ -28,11 +28,12 @@ namespace Engine
 	struct Buffer
 	{
 	protected:
-		Buffer() { mId = -1; }
+		Buffer() { mId = -1; mSize = 0; }
 		~Buffer();
 	public:
-		GLuint id() { return mId;}
+		GLuint	id() { return mId;}
 		void    destroy();
+		int		size();
 
 	protected:
 		void    create(int type, int flags, int size, const void* data = NULL);
@@ -40,11 +41,13 @@ namespace Engine
 		void*   map(int type, int access);
 		void    unmap(int type);
 		void    update(int type, const void*data, int offset, int size);
+
 	protected:
 		static void unbind(int type);
 		
 	protected:
 		GLuint mId;
+		int	   mSize;
 	};
 	
 #define BUFFER_TYPE(name, gltype) \
