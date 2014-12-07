@@ -2,6 +2,7 @@
 
 
 #include <Game/Base/GameEntity.h>
+#include <Utils/HttpQuery.h>
 
 namespace Editor
 {
@@ -18,11 +19,15 @@ namespace Editor
         void update(Game::Update& update) override;
         void destroy(Game::Destroy& destroy) override;
         void render(Game::RenderArg& render) override;
+    
     public:
         int     getSelectedTool() { return mSelectedTool; }
+
     private:
         int     mSelectedTool;
 		bool	mSave;
 		char	mFileName[255];
+        
+        Utils::HttpQuery mQuery;
     };
 };

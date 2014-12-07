@@ -7,3 +7,6 @@
 [submodule "Externals/HappyHTTP"]
 	path = Externals/HappyHTTP
 	url = https://github.com/Zintinio/HappyHTTP.git
+[submodule "Externals/gason"]
+	path = Externals/gason
+	url = https://github.com/vivkin/gason.git

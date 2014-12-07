@@ -28,6 +28,13 @@
 #	include <algorithm>
 #   include <map>
 #   include <imgui/imgui.h>
+#   include <thread>
+#   include <mutex>
+#   include <memory>
+#   include <chrono>
+#   include <functional>
+#   include <HappyHTTP/happyhttp.h>
+#   include <sstream>
 #endif
 
 #include <stb/stb_image.h>

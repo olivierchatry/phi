@@ -5,6 +5,7 @@
 #include <Render/IShaderDirectionalLight.h>
 #include <Render/Camera.h>
 #include <Game/Base/GameEntity.h>
+#include <Utils/HttpQuery.h>
 
 namespace Game {
     class Level : public GameEntity {
@@ -30,6 +31,10 @@ namespace Game {
 		};
 
     public:
+        void    databaseList();
+        void    save(std::string& json);
+        void    load(int64_t id);
+        
         void    update(Update& update) override;
         void    initialize(Initialize& initialize) override;
         void    render(RenderArg& render) override;
@@ -150,7 +155,10 @@ namespace Game {
 		Track								mGeneratedTrack;
 		Math::AABB							mLevelAABB;
         Render::IShaderDirectionalLight*    mShader;
-	
+
+    private:
+        int64_t             mId;
+
     public:
 		static bool sortByDistance(TrackChunkRenderable* a, TrackChunkRenderable* b)
 		{

@@ -27,11 +27,13 @@ project "Phi"
 	os.mkdir("build")
 	os.copydir("Phi/Shaders", "build/Shaders")
 	defines { "GLEW_STATIC", "GLM_FORCE_RADIANS" }
-  configuration { "Externals/imgui/*.cpp" }
-    flags { "NoPCH" }
+	
+	configuration { "Externals/imgui/*.cpp" }
+		flags { "NoPCH" }
+		
 	configuration { "**.c"}
 		flags { "NoPCH" }
-
+		
 	configuration "vs*"
 		pchheader "PreCompile.h"
 		defines     { "_CRT_SECURE_NO_WARNINGS" }
@@ -49,11 +51,13 @@ project "Phi"
 		toolset "clang"
 		buildoptions { "-mmacosx-version-min=10.4" }
 		linkoptions  { "-mmacosx-version-min=10.4" }
-
+	
 	configuration "macosx"
-		pchheader "../Phi/PreCompile.h"
-		libdirs "Externals/glfw/lib/osx"
+		platforms 	{"Universal"}
+		pchheader 	"../Phi/PreCompile.h"
+		libdirs 	"Externals/glfw/lib/osx"
 		links       { "glfw3", "OpenGL.framework", "CoreFoundation.framework", "CoreVideo.framework", "Cocoa.framework", "IOKit.framework", "AGL.framework"}
+
 	configuration "linux"
 		buildoptions { "-std=c++11" }
 		linkoptions  { "-std=c++11" }
@@ -70,5 +74,5 @@ project "Phi"
 		optimize "Debug"
 
 	configuration "Release"
-	defines { "NDEBUG" }
-	optimize "Full"
+		defines { "NDEBUG" }
+		optimize "Full"

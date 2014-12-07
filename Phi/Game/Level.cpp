@@ -1,6 +1,7 @@
 #include <PreCompile.h>
 #include <Game/Level.h>
 #include <Utils/Utils.h>
+
 namespace Game {
 	
 	
@@ -16,9 +17,9 @@ namespace Game {
 		mTrack.radius.push_back(300);
 		mTrack.points.push_back(glm::vec3(4000, -4000, 4000));
 		mTrack.radius.push_back(200);
-		
+        
 	}
-	
+    
 	void Level::initialize(Initialize& initialize)
 	{
 		//////////////////////////////////////////////////////////////////////////
@@ -45,9 +46,29 @@ namespace Game {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
 	}
 	
+    void Level::save(std::string& json)
+    {
+        std::stringstream output;
+        output << '[';
+        for (size_t i = 0; i < mTrack.points.size(); ++i)
+        {
+            output << '{';
+            output << "\"x\":" << mTrack.points[i].x;
+            output << ",\"y\":" << mTrack.points[i].y;
+            output << ",\"z\":" << mTrack.points[i].z;
+            output << ",\"r\":" << mTrack.radius[i];
+            output << '}';
+        }
+        output << ']';
+    }
+    
+    void Level::load(int64_t id)
+    {
+        
+    }
+    
 	void Level::update(Update& update)
 	{
 		update.level = this;

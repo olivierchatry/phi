@@ -1,5 +1,6 @@
 #include <PreCompile.h>
 #include <Game/Editor/EditorUI.h>
+#include <Game/Level.h>
 
 namespace Editor
 {
@@ -24,7 +25,15 @@ namespace Editor
 		if (ImGui::CollapsingHeader("file"))
 		{
 			ImGui::InputText("file name", mFileName, 200);
-			mSave = ImGui::Button("save");
+            if (ImGui::Button("save"))
+            {
+                Game::Level* level = (Game::Level*)update.level;
+                if (level)
+                {
+                    std::string levelJSON;
+                    level->save(levelJSON);
+                }
+            }
 		}
 		ImGui::End();
 		update.mouseTaken = ImGui::GetIO().WantCaptureMouse;
