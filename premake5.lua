@@ -15,9 +15,10 @@ project "Phi"
 		"Externals/stb/*.h",
 		"Externals/imgui/*.cpp",
 		"Externals/imgui/*.h",
-		"Externals/HappyHTTP/happyhttp.*"
+		"Externals/HappyHTTP/happyhttp.*",
+		"Externals/gason/src/gason.*"
 	}
-	includedirs {"Externals/glfw/include", "Externals/glew/include",  "Externals/glm", "Externals/", "Phi"}
+	includedirs {"Externals/glfw/include", "Externals/glew/include",  "Externals/glm", "Externals/", "Phi", "Externals\gason\src"}
 	floatingpoint "Fast"
 	flags       { "Symbols" }
 	debugdir "Phi"
@@ -29,6 +30,10 @@ project "Phi"
 	defines { "GLEW_STATIC", "GLM_FORCE_RADIANS" }
 	
 	configuration { "Externals/imgui/*.cpp" }
+		flags { "NoPCH" }
+	configuration { "Externals/gason/src/*.cpp" }
+		flags { "NoPCH" }
+	configuration { "Externals/HappyHTTP/*.cpp" }
 		flags { "NoPCH" }
 		
 	configuration { "**.c"}
@@ -45,7 +50,7 @@ project "Phi"
 		os.copyfile("Externals/glfw/lib/glfw3.dll", "build/glfw3.dll")
 		libdirs "Externals/glfw/lib"
 		system "Windows"
-		links {"opengl32", "glfw3dll"}
+		links {"opengl32", "glfw3dll", "Ws2_32"}
 	
 	configuration { "macosx", "gmake" }
 		toolset "clang"
