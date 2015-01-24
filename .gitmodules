@@ -3,7 +3,7 @@
 	url = https://github.com/ocornut/imgui.git
 [submodule "Externals/stb"]
 	path = Externals/stb
-	url = https://github.com/ocornut/stb.git
+	url = https://github.com/nothings/stb.git
 [submodule "Externals/HappyHTTP"]
 	path = Externals/HappyHTTP
 	url = https://github.com/Zintinio/HappyHTTP.git
