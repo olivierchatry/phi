@@ -151,7 +151,7 @@ namespace Engine
 		void createFromBuffer(GLubyte* buffer, int width, int height, int type, int channels);
 		void destroy();
 		void bind(int unit);
-		
+		GLuint id() { return mId; }
 	public:
 		inline void operator () (int unit) { bind(unit); }
 		

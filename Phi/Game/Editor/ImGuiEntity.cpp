@@ -118,7 +118,7 @@ namespace Editor
 		
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2((float)width, (float)height);  // Display size, in pixels. For clamping windows positions.
-		io.PixelCenterOffset = 0.0f;                                  // Align OpenGL texels
+		// io.PixelCenterOffset = 0.0f;                                  // Align OpenGL texels
 		io.RenderDrawListsFn = RenderDrawLists;
 		io.UserData = (void*)this;
 		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;                       // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
@@ -139,19 +139,28 @@ namespace Editor
 		io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
 		io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
 
-		const void* png_data;
-		unsigned int png_size;
-		ImGui::GetDefaultFontData(NULL, NULL, &png_data, &png_size);
 
+/*
 		int tex_x, tex_y, tex_comp;
 		GLubyte* tex_data = stbi_load_from_memory((const unsigned char*)png_data, (int)png_size, &tex_x, &tex_y, &tex_comp, 0);
 
-		mTextureFont.createFromBuffer(tex_data, tex_x, tex_y, GL_TEXTURE_2D, tex_comp);
-		mTextureFont.bind(0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		stbi_image_free(tex_data);
-		
+*/
+
+		unsigned char* pixels;
+
+		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits for OpenGL3 demo because it is more likely to be compatible with user's existing shader.
+		mTextureFont.createFromBuffer(pixels, width, height, GL_TEXTURE_2D, 4);
+		mTextureFont.bind(0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+		// Store our identifier
+		io.Fonts->TexID = (void *)(intptr_t)mTextureFont.id();
+
 		mShader.create();
 		mShader.addFromFile("Shaders/ImGUI.vert", GL_VERTEX_SHADER);
 		mShader.addFromFile("Shaders/ImGUI.frag", GL_FRAGMENT_SHADER);
