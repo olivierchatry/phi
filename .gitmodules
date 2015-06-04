@@ -7,3 +7,6 @@
 [submodule "Externals/gason"]
 	path = Externals/gason
 	url = https://github.com/vivkin/gason.git
+[submodule "Externals/stb"]
+	path = Externals/stb
+	url = https://github.com/nothings/stb.git
