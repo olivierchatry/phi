@@ -9,14 +9,14 @@ namespace Editor
 	{
 		fputs(description, stderr);
 	}
-	
-	
+
+
 	static void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseWheel += (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
 	}
-	
+
 	static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		ImGuiIO& io = ImGui::GetIO();
@@ -27,23 +27,20 @@ namespace Editor
 		io.KeyCtrl = (mods & GLFW_MOD_CONTROL) != 0;
 		io.KeyShift = (mods & GLFW_MOD_SHIFT) != 0;
 	}
-	
+
 	static void glfw_char_callback(GLFWwindow* window, unsigned int c)
 	{
 		if (c > 0 && c < 0x10000)
 			ImGui::GetIO().AddInputCharacter((unsigned short)c);
 	}
 
-	void ImGuiEntity::RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count)
+	void ImGuiEntity::RenderDrawLists(ImDrawData* draw_data)
 	{
-		if (cmd_lists_count == 0)
+		if (draw_data->CmdListsCount == 0)
 			return;
 		ImGuiIO& io = ImGui::GetIO();
 
 		ImGuiEntity* entity = (ImGuiEntity*) io.UserData;
-		// We are using the OpenGL fixed pipeline to make the example code simpler to read!
-		// A probable faster way to render would be to collate all vertices from all cmd_lists into a single vertex buffer.
-		// Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers.
 
 		glEnable(GL_BLEND);
 		glBlendEquation(GL_FUNC_ADD);
@@ -55,53 +52,53 @@ namespace Editor
 		glEnable(GL_TEXTURE_2D);
 
 		// Setup texture
-		
+
 		// Setup orthographic projection matrix
-		float width = ImGui::GetIO().DisplaySize.x;
-		float height = ImGui::GetIO().DisplaySize.y;
+
+		float width = io.DisplaySize.x;
+		float height = io.DisplaySize.y;
+
+		draw_data->ScaleClipRects(io.DisplayFramebufferScale);
+
 		glm::mat4 projection = glm::ortho(0.f, width, height, 0.f, -1.f, 1.f);
+		height *= io.DisplayFramebufferScale.y;
 		entity->mShader.bind();
 		entity->mShader.setUniform(entity->mMatrixProjection, projection);
 		entity->mShader.setUniform(entity->mTexture, 0);
 		entity->mTextureFont.bind(0);
-		
-		size_t total_vtx_count = 0;
-		for (int n = 0; n < cmd_lists_count; n++)
-			total_vtx_count += cmd_lists[n]->vtx_buffer.size();
 
-		Engine::VertexBuffer::Binder     bind1(entity->mVertexBuffer);
-		int needed_buffer_size = (int) total_vtx_count * sizeof(ImDrawVert);
-		if (needed_buffer_size > entity->mVertexBuffer.size())
-			entity->mVertexBuffer.update(NULL, 0, needed_buffer_size);
-
-		unsigned char* buffer_data = (unsigned char*)entity->mVertexBuffer.map(GL_WRITE_ONLY);
-		if (!buffer_data)
-			return;
-		for (int n = 0; n < cmd_lists_count; n++)
-		{
-			const ImDrawList* cmd_list = cmd_lists[n];
-			memcpy(buffer_data, &cmd_list->vtx_buffer[0], cmd_list->vtx_buffer.size() * sizeof(ImDrawVert));
-			buffer_data += cmd_list->vtx_buffer.size() * sizeof(ImDrawVert);
-		}
-		entity->mVertexBuffer.unmap();
-
+		Engine::VertexBuffer::Binder    bind1(entity->mVertexBuffer);
 		Engine::VertexArray::Binder     bind2(entity->mVertexArray);
+		Engine::IndexBuffer::Binder			bind3(entity->mIndexBuffer);
 		// Render command lists
 		int cmd_offset = 0;
-		for (int n = 0; n < cmd_lists_count; n++)
+		for (int n = 0; n < draw_data->CmdListsCount; n++)
 		{
-			const ImDrawList* cmd_list = cmd_lists[n];
-			int vtx_offset = cmd_offset;
-			const ImDrawCmd* pcmd_end = cmd_list->commands.end();
-			for (const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++)
+			const ImDrawList* cmd_list = draw_data->CmdLists[n];
+			int 	idx_buffer_offset = 0;
+			const ImDrawCmd* pcmd_end = cmd_list->CmdBuffer.end();
+			int		ibx_size = cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx);
+			int		vbx_size = cmd_list->VtxBuffer.size() * sizeof(ImDrawVert);
+
+			entity->mVertexBuffer.update((GLvoid*)&cmd_list->VtxBuffer.front(), 0, vbx_size);
+			entity->mIndexBuffer.update((GLvoid*)&cmd_list->IdxBuffer.front(), 0, ibx_size);
+
+			for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != pcmd_end; pcmd++)
 			{
-				glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
-				glDrawArrays(GL_TRIANGLES, vtx_offset, pcmd->vtx_count);
-				vtx_offset += pcmd->vtx_count;
+				if (pcmd->UserCallback)
+				{
+						pcmd->UserCallback(cmd_list, pcmd);
+				}
+				else
+				{
+					glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+					glScissor((int)pcmd->ClipRect.x, (int)(height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+					glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, (void*) idx_buffer_offset);
+				}
+				idx_buffer_offset += pcmd->ElemCount;
 			}
-			cmd_offset = vtx_offset;
 		}
-		
+
 		// Restore modified state
 		glScissor(0, 0, (int) width, (int) height);
 		glDisable(GL_SCISSOR_TEST);
@@ -115,7 +112,7 @@ namespace Editor
 		glfwSetCharCallback(initialize.window, glfw_char_callback);
 		glfwSetKeyCallback(initialize.window, glfw_key_callback);
 		glfwSetScrollCallback(initialize.window, glfw_scroll_callback);
-		
+
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2((float)width, (float)height);  // Display size, in pixels. For clamping windows positions.
 		// io.PixelCenterOffset = 0.0f;                                  // Align OpenGL texels
@@ -165,14 +162,15 @@ namespace Editor
 		mShader.addFromFile("Shaders/ImGUI.vert", GL_VERTEX_SHADER);
 		mShader.addFromFile("Shaders/ImGUI.frag", GL_FRAGMENT_SHADER);
 		mShader.link();
-		
+
 		mVsPosition = mShader.getAttribute("in_Position");
 		mVsColor = mShader.getAttribute("in_Color");
 		mVsUV = mShader.getAttribute("in_UV");
-		
+
 		mMatrixProjection = mShader.getUniform("uni_ProjectionMatrix");
 		mTexture = mShader.getUniform("uni_Texture");
-		mVertexBuffer.create(GL_DYNAMIC_DRAW, 1000000);
+		mVertexBuffer.create(GL_STREAM_DRAW, 1000000);
+		mIndexBuffer.create(GL_STREAM_DRAW, 1000000);
 		mVertexArray.create();
 		{
 			Engine::VertexArray::Binder     bind1(mVertexArray);
@@ -183,7 +181,7 @@ namespace Editor
 			mVertexArray.attrib(mVsUV,			2, GL_FLOAT,			GL_FALSE, sizeof(ImDrawVert),	offsetof(ImDrawVert, uv));
 		}
 	}
-	
+
 	void ImGuiEntity::update(Game::Update& update)
 	{
 		int width, height;
@@ -191,7 +189,7 @@ namespace Editor
 		int windowWidth, windowHeight;
 		glfwGetWindowSize(update.window, &windowWidth, &windowHeight);
 		glm::dvec2 scale((double)width / (double)windowWidth, (double)height / (double)windowHeight);
-		
+
 
 		ImGuiIO& io = ImGui::GetIO();
 		glm::dvec2 currentMousePosition;
@@ -207,7 +205,7 @@ namespace Editor
 		ImGui::NewFrame();
 		//ImGui::SetWindowFontScale(2.f);
 }
-	
+
 	void ImGuiEntity::destroy(Game::Destroy& destroy)
 	{
 		ImGui::Shutdown();
@@ -222,5 +220,5 @@ namespace Editor
 			}
 		}
 	}
-	
+
 }

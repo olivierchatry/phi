@@ -13,17 +13,17 @@ namespace Editor
 		void destroy(Game::Destroy& destroy) override;
 		void render(Game::RenderArg& render) override;
 	public:
-		static void RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count);
-
+		static void RenderDrawLists(ImDrawData* draw_data);
 	private:
 		Engine::Shader			mShader;
 		Engine::Texture			mTextureFont;
 		Engine::VertexArray		mVertexArray;
 		Engine::VertexBuffer	mVertexBuffer;
+		Engine::IndexBuffer		mIndexBuffer;
 		int             mMatrixProjection;
-		
+
 		int				mTexture;
-		
+
 		int             mVsPosition;
 		int             mVsUV;
 		int             mVsColor;
