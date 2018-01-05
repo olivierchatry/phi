@@ -1,7 +1,7 @@
 var http = require('http')
 var url = require('url')
 var pg = require('pg');
-var conString = "postgres://phi:twodice=42@localhost/phi";
+var conString = "postgres://phi@localhost/phi";
 
 
 function level_save () {
